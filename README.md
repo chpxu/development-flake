@@ -1,14 +1,15 @@
-# python-direnv-template
+# direnv-template
 
-Just a few files for my Python workflow
+Opinionated flake for development of various things I work on using various languages/frameworks/tools.
 
-1. Uses purely [direnv](https://github.com/direnv/direnv) and implemented via [nix-direnv](https://github.com/nix-community/nix-direnv).
-2. Python libraries managed via `pip` with fixed dependencies in `requirements.txt`
+## Workflow
 
-## Steps to use
+This flake is intended to fit with my workflow, which is with [Visual Studio Code](https://code.visualstudio.com), NixOS and direnv.
 
-This is more of a note to self
+## Features
 
-1. Install `direnv` and `nix-direnv` (done by `home-manager` usually).
-2. Go to directory and run `direnv allow`.
-3. shellHook should upgrade pip and install dependencies
+- `C/C++` based off [fufexan's config](https://gist.github.com/fufexan/2e7020d05ff940c255d74d5c5e712815)
+  - Summary: Clang/LLVM C/C++ development environment.
+- `Python` with pre-installed packages intended for scientific work and visualisation.
+  - Default packages: `numpy, scipy, matplotlib`
+- `Node/JS/TS` with pre-installed packages for `nodejs, yarn`.
