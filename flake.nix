@@ -1,6 +1,8 @@
 {
   description = "Opinionated Flake for Python/C/C++/JS Development";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs = {
+    url = "github:NixOS/nixpkgs/aa9d4729cbc99dabacb50e3994dcefb3ea0f7447";
+  };
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = {
@@ -14,52 +16,35 @@
         config.allowUnfree = true;
         config.allowUnfreePredicate = _: true;
       };
-      installC = true;
-      installPython = false;
-      installJS = false;
-      llvm = pkgs.llvmPackages_latest;
-      devPythonPackages = ps:
-        with ps; [
-          numpy
-          scipy
-          matplotlib
-        ];
-      devCPackages = with pkgs; [
-        gnumake
-        cmake
-        llvm.lldb
-        gdb
-        clang-tools
-        boost
-        llvm.libstdcxxClang
-        cppcheck
-        llvm.libllvm
-        valgrind
-        # runner
-        llvm.libcxx
-      ];
-      pythonEnv = pkgs.python310.withPackages devPythonPackages;
-      defaultHookTest = ''
-        echo "Loaded direnv environment with:"
-        echo "C/C++: ${installC}"
-        echo "Python: ${installPython}"
-        echo "Node: ${installJS}"
-        echo "Setting up vscode settings"'';
-      createHook = {setPythonPath}:
-        if setPythonPath
-        then ''
-          ${defaultHookTest}
-          PYTHONPATH=${pythonEnv}/${pythonEnv.sitePackages}
-        ''
-        else defaultHookTest;
-    in {
-      devShells.default = pkgs.mkShell {
-        packages = with pkgs;
-          [zsh direnv]
-          ++ (lib.optional installC devCPackages)
-          ++ (lib.optional installPython pythonEnv)
-          ++ (lib.optional installJS (with pkgs; [nodejs_20 yarn]));
+      # See packages/default.nix to see what to pass into attrs set
+      attrs = {
+        inherit pkgs;
+        lib = pkgs.lib;
+        installC = true;
+        installPython = true;
+        installJS = false;
+        useLLVM = true;
+        llvmVer = "17";
+        pythonVer = "310";
+        nodeVer = "20";
+        enableVSCodeSetup = true;
       };
-      shellHook = createHook {setPythonPath = installPython;};
+      # imports the shell and package configuration from `nix/default.nix`
+      configuration = import ./nix attrs;
+    in {
+      # Set formatter
+      formatter = pkgs.alejandra;
+
+      devShells.default = configuration.shellOverride {
+        buildInputs = [
+          (
+            if attrs.useLLVM
+            then pkgs."llvmPackages_${attrs.llvmVer}".libstdcxxClang
+            else pkgs.gcc
+          )
+        ];
+        packages = configuration.packages ++ [pkgs.bashInteractive];
+      };
+      shellHook = configuration.shellHook;
     });
 }
