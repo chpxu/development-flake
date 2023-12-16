@@ -29,7 +29,7 @@
   # Create final list of packages to be made available in the shell
   listOfFinalPackages = {
     installC = CPackages;
-    installPython = pythonPackages;
+    installPython = [pythonPackages];
     installJS = jsPackages;
   };
 
@@ -39,30 +39,23 @@
       setOfPackages = listOfFinalPackages;
     })
     .finalList;
-  # finalPackages = listOfFinalPackages.installPython;
 in {
-  # imports = [
-  #   (./misc/write_vscode_settings.nix {
-  #     inherit pkgs installC installPython installJS;
-  #     pythonEnv = pythonPackages;
-  #   })
-  # ];
   # These attributes are exposed when called from flake.nix
   # This means configuration can be left to inside the nix directory.
   packages = finalPackage;
   # Controls whether to override the stdenv with clang or gcc
-  shellOverride = {packages ? [], ...} @ shellArgs:
-    if useLLVM
-    then
-      pkgs.mkShell.override {stdenv = pkgs.clangStdenv;} {
-        inherit packages;
-        buildInputs = shellArgs.buildInputs;
-      }
-    else
-      pkgs.mkShell.override {stdenv = pkgs.gccStdenv;} {
+
+  shellOverride = {packages ? [], ...} @ shellArgs: let
+    mkShellArgs = stdenv:
+      pkgs.mkShell.override {inherit stdenv;} {
         inherit packages;
         buildInputs = shellArgs.buildInputs;
       };
+  in (
+    if useLLVM
+    then mkShellArgs pkgs.clangStdenv
+    else mkShellArgs pkgs.gccStdenv
+  );
   # Controls shellHook
   shellHook = ''
     echo "Loaded direnv environment with:"
@@ -71,7 +64,7 @@ in {
     echo "Node: ${installJS}"
     ${
       if installPython
-      then ''export PYTHONPATH=${pythonPackages}/${pythonPackages.sitePackages}''
+      then ''export PYTHONPATH="${pythonPackages}/${pythonPackages.sitePackages}"''
       else ''''
     }
     ${
@@ -79,7 +72,11 @@ in {
       then ''
         echo "Setting up VSCode settings."
          cat << EOF > .vscode/settings.json
-          ${(import ./misc/write_vscode_settings.nix).settings}
+          ${(import ./misc/write_vscode_settings.nix {
+            inherit pkgs lib useLLVM;
+            pythonEnv = pythonPackages;
+          })
+          .settings}
           EOF
       ''
       else ''echo "No VSCode settings were written"''
