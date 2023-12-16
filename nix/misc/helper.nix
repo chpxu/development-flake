@@ -1,7 +1,4 @@
-{lib}: rec {
-  # Useful functions
-  listAccumulate = builtins.foldl' (acc: f: acc f);
-
+{lib}: {
   # conditionalList will merge 2 lists together depending on whether a condition is true
   conditionalList = {
     condition,
