@@ -37,6 +37,7 @@
 
       devShells.default = configuration.shellOverride {
         buildInputs = [
+          pkgs.bashInteractive
           (
             if attrs.useLLVM
             then pkgs."llvmPackages_${attrs.llvmVer}".libstdcxxClang
