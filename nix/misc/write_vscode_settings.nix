@@ -1,4 +1,7 @@
 {
+  installC,
+  installPython,
+  installJS,
   pythonPackages ? null,
   useLLVM,
   pkgs,
@@ -9,10 +12,6 @@
     if useLLVM
     then pkgs.llvmPackages_latest
     else pkgs.gcc;
-in rec {
-  # This file contains the VSCode configuration (that I use), and is currently grouped per language. This can be modified to your needs.
-  # It creates a final configuration based on what is used. This is an overengineered method to writing a textFile, but I feel that it is flexible in what it does and can do - it means I can write lines of settings declaratively and keep is across projects easily
-  emptySettings = {};
   CCppVScodeSettings = {
     "C_Cpp.default.cppStandard" = "c++17";
     "C_Cpp.default.compilerPath" =
@@ -30,7 +29,7 @@ in rec {
     "pylint.interpreter" = ["python3"];
     "python.analysis.autoImportCompletions" = true;
     "python.analysis.completeFunctionParens" = true;
-    "python.analysis.typeCheckingMode" = "on";
+    "python.analysis.typeCheckingMode" = "strict";
     "python.defaultInterpreterPath" =
       if !(builtins.isNull pythonPackages)
       then "${pythonPackages}/bin/python"
@@ -43,12 +42,11 @@ in rec {
       "editor.defaultFormatter" = "esbenp.prettier-vscode";
     };
   };
-  # This section of code creates the final nix JSON atom condtionally based on what is configured
-  # conditions = [installC installPython installJS];
-  # settingsList = [CCppVScodeSettings PythonVScodeSettings JSVScodeSettings];
-  # settingConditionPairs = lib.zip conditions settingsList;
-  # settingsToMerge = lib.mapAttrsToList mergeSetsHelper settingConditionPairs;
-  # TODO: Conditionally merge attributes
-  settings = lib.attrsets.mergeAttrsList [CCppVScodeSettings PythonVScodeSettings JSVScodeSettings];
-  # settings = builtins.toJSON (lib.attrsets.mergeAttrsList [CCppVScodeSettings PythonVScodeSettings JSVScodeSettings]);
-}
+in
+  # This file contains the VSCode configuration (that I use), and is currently grouped per language. This can be modified to your needs.
+  lib.attrsets.mergeAttrsList (
+    []
+    ++ (lib.optional installC CCppVScodeSettings)
+    ++ (lib.optional installJS JSVScodeSettings)
+    ++ (lib.optional installPython PythonVScodeSettings)
+  )

@@ -39,10 +39,13 @@
       setOfPackages = listOfFinalPackages;
     })
     .finalList;
+  vscode_settings = import ./misc/write_vscode_settings.nix {inherit pkgs lib useLLVM pythonPackages installC installJS installPython;};
+  yes = builtins.toJSON vscode_settings;
+  configFile = pkgs.writeTextDir ".vscode/settings.json" (builtins.toJSON yes);
 in {
   # These attributes are exposed when called from flake.nix
   # This means configuration can be left to inside the nix directory.
-  packages = finalPackage;
+  packages = finalPackage ++ [configFile];
   # Controls whether to override the stdenv with clang or gcc
 
   shellOverride = {packages ? [], ...} @ shellArgs: let
@@ -76,25 +79,14 @@ in {
           }
           ${
             if enableVSCodeSetup
-            then ''echo "Writing VSCode settings to .vscode/settings.json in the root directory"''
+            then ''
+              #!/bin/bash
+              echo "Writing VSCode settings to .vscode/settings.json in the root directory"
+              echo "VSCode settings have been successfully written"
+            ''
             else "No VSCode settings were written"
           }
         '';
-        # Write VSCode settings right at the end of the build
-        postBuild = let
-          write_vscode_settings = import ./misc/write_vscode_settings.nix {inherit pkgs lib useLLVM pythonPackages;};
-          vscodeSettings = builtins.toJSON write_vscode_settings.settings;
-        in
-          if enableVSCodeSetup
-          then ''
-            mkdir -p $out/.vscode
-            cat \
-            ${(pkgs.formats.json {}).generate "blabla"
-              vscodeSettings} \
-            > $out/.vscode/settings.json
-            echo "VSCode settings written to .vscode/settings.json"
-          ''
-          else '''';
       };
   in (
     if useLLVM

@@ -26,6 +26,13 @@
     conditions;
   };
 
+  # recursiveMergeAttr accepts one argument: setOfSets
+  #  We define this type Configurable :: types.set
+  # Inside Configurable, there can be an arbitrary number of attribute names with corresponding attribute values.
+  # attributeName :: types.string  = attributeValues :: types.any (an array, string, number, boolean, set etc) which can be converted into JSON
+  # setOfSets = { set1 = { attrName (types.string): attrValue (types.any); }; set2 = { ... }};
+  # recursiveMergeAttr
+  # recursiveMergeAttr = {setOfSets}: lib.attrsets.mapAttrsRecursive;
   # Credit: http://www.chriswarbo.net/projects/nixos/useful_hacks.html
   # importNixFiles = directory: builtins.mapAttrs (language: _: import directory + "/${language}") (lib.attrsets.filterAttrs (name: _: lib.strings.hasSuffix ".nix" name) (builtins.readDir directory));
 }
