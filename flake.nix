@@ -36,8 +36,9 @@
       formatter = pkgs.alejandra;
 
       devShells.default = configuration.shellOverride {
-        buildInputs = [
+        nativeBuildInputs = [
           pkgs.bashInteractive
+          pkgs.pkg-config
           (
             if attrs.useLLVM
             then pkgs."llvmPackages_${attrs.llvmVer}".libstdcxxClang
@@ -46,6 +47,5 @@
         ];
         packages = configuration.packages ++ [pkgs.bashInteractive];
       };
-      shellHook = configuration.shellHook;
     });
 }

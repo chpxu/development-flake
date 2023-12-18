@@ -49,37 +49,56 @@ in {
     mkShellArgs = stdenv:
       pkgs.mkShell.override {inherit stdenv;} {
         inherit packages;
-        buildInputs = shellArgs.buildInputs;
+        buildInputs = shellArgs.nativeBuildInputs;
+        nativeBuildInputs = shellArgs.nativeBuildInputs;
+        # Controls shellHook
+        shellHook = ''
+          echo "Loaded direnv environment with:"
+          echo "C/C++: ${
+            if installC
+            then "Enabled"
+            else "Disabled"
+          }"
+          echo "Python: ${
+            if installPython
+            then "Enabled"
+            else "Disabled"
+          }"
+          echo "Node: ${
+            if installJS
+            then "Enabled"
+            else "Disabled"
+          }"
+          ${
+            if installPython
+            then ''export PYTHONPATH="${pythonPackages}/${pythonPackages.sitePackages}"''
+            else ''''
+          }
+          ${
+            if enableVSCodeSetup
+            then ''echo "Writing VSCode settings to .vscode/settings.json in the root directory"''
+            else "No VSCode settings were written"
+          }
+        '';
+        # Write VSCode settings right at the end of the build
+        postBuild = let
+          write_vscode_settings = import ./misc/write_vscode_settings.nix {inherit pkgs lib useLLVM pythonPackages;};
+          vscodeSettings = builtins.toJSON write_vscode_settings.settings;
+        in
+          if enableVSCodeSetup
+          then ''
+            mkdir -p $out/.vscode
+            cat \
+            ${(pkgs.formats.json {}).generate "blabla"
+              vscodeSettings} \
+            > $out/.vscode/settings.json
+            echo "VSCode settings written to .vscode/settings.json"
+          ''
+          else '''';
       };
   in (
     if useLLVM
     then mkShellArgs pkgs.clangStdenv
     else mkShellArgs pkgs.gccStdenv
   );
-  # Controls shellHook
-  shellHook = ''
-    echo "Loaded direnv environment with:"
-    echo "C/C++: ${installC}"
-    echo "Python: ${installPython}"
-    echo "Node: ${installJS}"
-    ${
-      if installPython
-      then ''export PYTHONPATH="${pythonPackages}/${pythonPackages.sitePackages}"''
-      else ''''
-    }
-    ${
-      if enableVSCodeSetup
-      then ''
-        echo "Setting up VSCode settings."
-         cat << EOF > .vscode/settings.json
-          ${(import ./misc/write_vscode_settings.nix {
-            inherit pkgs lib useLLVM;
-            pythonEnv = pythonPackages;
-          })
-          .settings}
-          EOF
-      ''
-      else ''echo "No VSCode settings were written"''
-    }
-  '';
 }

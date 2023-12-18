@@ -16,6 +16,8 @@ in {
     cppcheck
     llvm.libllvm
     valgrind
+    meson
+    ninja
     # runner
     llvm.libcxx
   ];

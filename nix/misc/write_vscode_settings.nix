@@ -1,5 +1,5 @@
 {
-  pythonEnv ? null,
+  pythonPackages ? null,
   useLLVM,
   pkgs,
   lib,
@@ -32,8 +32,8 @@ in rec {
     "python.analysis.completeFunctionParens" = true;
     "python.analysis.typeCheckingMode" = "on";
     "python.defaultInterpreterPath" =
-      if !(builtins.isNull pythonEnv)
-      then "${pythonEnv}/bin/python"
+      if !(builtins.isNull pythonPackages)
+      then "${pythonPackages}/bin/python"
       else "python3";
     "python.diagnostics.sourceMapsEnabled" = true;
     "python.languageServer" = "Pylance";
@@ -49,5 +49,6 @@ in rec {
   # settingConditionPairs = lib.zip conditions settingsList;
   # settingsToMerge = lib.mapAttrsToList mergeSetsHelper settingConditionPairs;
   # TODO: Conditionally merge attributes
-  settings = builtins.toJSON (lib.attrsets.mergeAttrsList [CCppVScodeSettings PythonVScodeSettings JSVScodeSettings]);
+  settings = lib.attrsets.mergeAttrsList [CCppVScodeSettings PythonVScodeSettings JSVScodeSettings];
+  # settings = builtins.toJSON (lib.attrsets.mergeAttrsList [CCppVScodeSettings PythonVScodeSettings JSVScodeSettings]);
 }
