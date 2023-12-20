@@ -8,21 +8,19 @@
   lib,
   ...
 }: let
-  compilerPath =
-    if useLLVM
-    then pkgs.llvmPackages_latest
-    else pkgs.gcc;
-  CCppVScodeSettings = {
+  C_CppVScodeSettings = {
     "C_Cpp.default.cppStandard" = "c++17";
-    "C_Cpp.default.compilerPath" =
+    "C_Cpp.default.compilerPath" = (
       if useLLVM
-      then "${compilerPath}/bin/clang++"
-      else "${compilerPath}/bin/gcc";
+      then "${pkgs.llvmPackages_latest.libstdcxxClang}/bin/clang++"
+      else "${pkgs.gcc}/bin/gcc"
+    );
     "C_Cpp.default.cStandard" = "c99";
-    "C_Cpp.default.intelliSenseMode" =
+    "C_Cpp.default.intelliSenseMode" = (
       if useLLVM
       then "linux-clang-x64"
-      else "linux-gcc-x64";
+      else "linux-gcc-x64"
+    );
     "C_Cpp.autocompleteAddParentheses" = true;
   };
   PythonVScodeSettings = {
@@ -42,11 +40,14 @@
       "editor.defaultFormatter" = "esbenp.prettier-vscode";
     };
   };
-in
-  # This file contains the VSCode configuration (that I use), and is currently grouped per language. This can be modified to your needs.
-  lib.attrsets.mergeAttrsList (
+  settings = lib.attrsets.mergeAttrsList (
     []
-    ++ (lib.optional installC CCppVScodeSettings)
+    ++ (lib.optional installC C_CppVScodeSettings)
     ++ (lib.optional installJS JSVScodeSettings)
     ++ (lib.optional installPython PythonVScodeSettings)
-  )
+  );
+in {
+  # This file contains the VSCode configuration (that I use), and is currently grouped per language. This can be modified to your needs.
+
+  finalSettings = builtins.toString (builtins.toJSON settings);
+}

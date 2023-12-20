@@ -40,13 +40,10 @@
       setOfPackages = listOfFinalPackages;
     })
     .finalList;
-  vscode_settings = import ./misc/write_vscode_settings.nix {inherit pkgs lib useLLVM pythonPackages installC installJS installPython;};
-  yes = builtins.toJSON vscode_settings;
-  configFile = pkgs.writeTextDir ".vscode/settings.json" (builtins.toJSON yes);
 in {
   # These attributes are exposed when called from flake.nix
   # This means configuration can be left to inside the nix directory.
-  packages = finalPackage ++ [configFile];
+  packages = finalPackage;
   # Controls whether to override the stdenv with clang or gcc
 
   shellOverride = {packages ? [], ...} @ shellArgs: let
@@ -59,16 +56,23 @@ in {
         shellHook = ''
           echo "Loaded direnv environment with:"
           echo "C/C++: ${helper.ifString installC "Enabled" "Disabled"}"
-          echo "Python: ${helper.ifString installPython ''
+          ${helper.ifString installPython ''
             export PYTHONPATH="${pythonPackages}/${pythonPackages.sitePackages}"
-            echo "Enabled"
-          '' "Disabled"}"
+            echo "Python: Enabled"
+          '' "Python: Disabled"}
           echo "Node: ${helper.ifString installJS "Enabled" "Disabled"}"
           ${
             if enableVSCodeSetup
             then ''
-              #!/bin/bash
               echo "Writing VSCode settings to .vscode/settings.json in the root directory"
+              if [ ! -e ".vscode" ]; then
+                mkdir -p "./.vscode"
+              fi
+              cat << EOF > .vscode/settings.json
+                ${(import ./misc/write_vscode_settings.nix {inherit pkgs lib installC installJS installPython useLLVM pythonPackages;}).finalSettings}
+
+              EOF
+
               echo "VSCode settings have been successfully written"
             ''
             else "No VSCode settings were written"

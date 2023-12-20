@@ -1,3 +1,2 @@
-{
-  "C_Cpp.default.cppStandard": "c++17"
-}
+  {"C_Cpp.autocompleteAddParentheses":true,"C_Cpp.default.cStandard":"c99","C_Cpp.default.compilerPath":"/nix/store/nn2ypjvdr6frc1zrkf2w9hy45kp6cdb6-clang-wrapper-16.0.6/bin/clang++","C_Cpp.default.cppStandard":"c++17","C_Cpp.default.intelliSenseMode":"linux-clang-x64","pylint.interpreter":["python3"],"python.analysis.autoImportCompletions":true,"python.analysis.completeFunctionParens":true,"python.analysis.typeCheckingMode":"strict","python.defaultInterpreterPath":"/nix/store/053zwqsaqlvqi4swmddnb261pwvrvaja-python3-3.10.13-env/bin/python","python.diagnostics.sourceMapsEnabled":true,"python.languageServer":"Pylance"}
+

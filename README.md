@@ -1,6 +1,6 @@
 # Development Template with direnv
 
-Opinionated flake for development of various things I work on using multiple languages/frameworks/tools. Uses `flake-utils`.
+Opinionated flake for development of various things I work on using multiple languages/frameworks/tools. Uses `flake-utils`, `direnv` and `nix-direnv`. The motivation for this is to create an environment which is easy to use
 
 ## Workflow
 
@@ -46,6 +46,7 @@ programs = {
 - `Python` with pre-installed packages intended for scientific work and visualisation.
   - Default packages: `numpy, scipy, matplotlib`
 - `Node/JS/TS` with pre-installed packages for `nodejs, yarn`.
+  - The packages installed here are minimal since I prefer to use `package.json`s for each individual project.
 - Easy modification of development environments for each language.
 <!-- - Setting up local `settings.json` for VSCode (WIP). -->
 ## Configuring for your own use
@@ -86,13 +87,32 @@ The `nix` folder structure looks something like this:
   - For example, configuring python311 to `enableOptimisations` and disable `reproducibleBuild` for potential speedups
 - `misc` folder contains any general functions written to be used across the project (`helper.nix`), and any configuration that does not directly impact the shell itself (e.g. editor settings).
 
+### Editor/IDE Integration
+
+Currently this is WIP, and my main goal is making sure this flake works well with VSCode.
+
+### Visual Studio Code
+
+1. Have the [direnv extension](https://marketplace.visualstudio.com/items?itemName=mkhl.direnv) installed (either globally or in your workspace). Ensure you trust your workspace so it can execute shell scripts.
+
+The repository contains a file `misc/write_vscode_settings.nix` which converts sets of Nix expressions to a JSON string, and then writes to `.vscode/settings.json` in the directory where the flake is located. The file created *is* editable which means you can mess around with settings after the original file is created, however the file is not prettified and you may want external tools like `jq` or an extension like `Prettier` to auto-format it back to a readable state.
+
+### (Neo)Vim
+
+Untested, I don't use vim for serious development, so I'm unaware of many solutions.
+
+1. Install [vim-direnv](https://github.com/direnv/direnv.vim) with your plugin manager.
+
+### Emacs
+
+1. Install [emacs-direnv](https://github.com/wbolster/emacs-direnv).
+
 ## Contributing
 
 Thanks for viewing this repo!
 
 I don't really use anything other than NixOS and VSCode. I don't do development on Windows anymore. Extending the flake to cope with some other editors or platforms would be greatly appreciated and would help a bunch of others if they ever happen to come across this.
 
-## Upcoming
+## Other niceties
 
-- [ ] VSCode workspace integration (writing `.vscode/settings.json` in current directory).
-- [ ] Flexibility with modules.
+- [zsh](https://www.zsh.org/) and [starship](https://starship.rs/).
