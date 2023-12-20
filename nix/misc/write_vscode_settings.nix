@@ -41,13 +41,14 @@
     };
   };
   settings = lib.attrsets.mergeAttrsList (
-    []
+    # Include empty set in case no settings wish to be written
+    [{}]
     ++ (lib.optional installC C_CppVScodeSettings)
     ++ (lib.optional installJS JSVScodeSettings)
     ++ (lib.optional installPython PythonVScodeSettings)
   );
 in {
-  # This file contains the VSCode configuration (that I use), and is currently grouped per language. This can be modified to your needs.
-
+  # This file contains the VSCode configuration (that I use), and is currently grouped per language. This can be modified to your needs..
+  # finalSettings is the final output (JSON string) to be inserted into settings.json
   finalSettings = builtins.toString (builtins.toJSON settings);
 }

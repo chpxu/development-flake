@@ -16,8 +16,5 @@ if [ "$1" = "test" ]; then
   echo "TEST" 
 fi
 # gcc -g -fsanitize=undefined -fsanitize=thread -Wall -Werror -std=c99 -lm -o assign3 assign3.c 
-# gcc -g assign3.c -lm
-# ./assign3
-# ./assign3 > output.txt
 
 echo "TERMINATED"
