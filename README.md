@@ -47,7 +47,7 @@ programs = {
   - Default packages: `numpy, scipy, matplotlib`
 - `Node/JS/TS` with pre-installed packages for `nodejs, yarn`.
 - Easy modification of development environments for each language.
-- Setting up local `settings.json` for VSCode (WIP).
+<!-- - Setting up local `settings.json` for VSCode (WIP). -->
 ## Configuring for your own use
 
 To minimise clutter with projects, the majority of configuration is done inside the `nix` folder, with the `flake.nix` (and corresponding lockfile) left in the root of the directory. This section of the README can be considered to be the "Documentation".
@@ -81,7 +81,7 @@ The `nix` folder structure looks something like this:
 ```
 
 - `default.nix` is the file which imports and includes everything from all the other files and sets up package configuration, shellHook, vscode configuration etc. This file is then included inside `flake.nix` to be consumed by `devShells`.
-- `packages/<language>` folders contain nix files that detail the relevant packages to be installed..
+- `packages/<language>` folders contain nix files that detail the relevant packages to be installed.
 - `overlays` folder contains, well, any overlays you might want to use. 
   - For example, configuring python311 to `enableOptimisations` and disable `reproducibleBuild` for potential speedups
 - `misc` folder contains any general functions written to be used across the project (`helper.nix`), and any configuration that does not directly impact the shell itself (e.g. editor settings).
