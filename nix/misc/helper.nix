@@ -26,6 +26,11 @@
     conditions;
   };
 
+  # Simple function to replace easy if-then-else statements
+  ifString = condition: success: failure:
+    if condition
+    then success
+    else failure;
   # recursiveMergeAttr accepts one argument: setOfSets
   #  We define this type Configurable :: types.set
   # Inside Configurable, there can be an arbitrary number of attribute names with corresponding attribute values.

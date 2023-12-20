@@ -10,6 +10,7 @@
   llvmVer ? "17",
   pythonVer ? "310",
   nodeVer ? "20",
+  gccVer ? "12",
   # Allows the use of `misc/write_vscode_settings.nix`, which integrates nicely into VSCode configuration for the project.
   # Default false
   enableVSCodeSetup ? false,
@@ -22,7 +23,7 @@
   };
   # Import packages
   # TODO: scan directories in ./packages automatically and return list of imports instead of manual imports
-  CPackages = (import ./packages/c {inherit pkgs llvmVer;}).devCPackages;
+  CPackages = (import ./packages/c {inherit pkgs useLLVM llvmVer gccVer;}).devCPackages;
   pythonPackages = (import ./packages/python {inherit pkgs pythonVer;}).devPythonPackages;
   jsPackages = (import ./packages/js {inherit pkgs nodeVer;}).jsPackages;
   # packages = helper.importNixFiles ./packages;
@@ -57,26 +58,12 @@ in {
         # Controls shellHook
         shellHook = ''
           echo "Loaded direnv environment with:"
-          echo "C/C++: ${
-            if installC
-            then "Enabled"
-            else "Disabled"
-          }"
-          echo "Python: ${
-            if installPython
-            then "Enabled"
-            else "Disabled"
-          }"
-          echo "Node: ${
-            if installJS
-            then "Enabled"
-            else "Disabled"
-          }"
-          ${
-            if installPython
-            then ''export PYTHONPATH="${pythonPackages}/${pythonPackages.sitePackages}"''
-            else ''''
-          }
+          echo "C/C++: ${helper.ifString installC "Enabled" "Disabled"}"
+          echo "Python: ${helper.ifString installPython ''
+            export PYTHONPATH="${pythonPackages}/${pythonPackages.sitePackages}"
+            echo "Enabled"
+          '' "Disabled"}"
+          echo "Node: ${helper.ifString installJS "Enabled" "Disabled"}"
           ${
             if enableVSCodeSetup
             then ''
