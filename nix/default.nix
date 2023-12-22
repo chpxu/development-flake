@@ -4,6 +4,7 @@
   installC,
   installPython,
   installJS,
+  installLatex,
   # Allow controlling the major version of packages to be installed.
   # Allows for more flexibility when configuring the shell
   useLLVM ? true,
@@ -19,19 +20,21 @@
 }: let
   helper = import ./misc/helper.nix {inherit lib;};
   conditions = {
-    inherit installC installPython installJS;
+    inherit installC installPython installJS installLatex;
   };
   # Import packages
   # TODO: scan directories in ./packages automatically and return list of imports instead of manual imports
   CPackages = (import ./packages/c {inherit pkgs useLLVM llvmVer gccVer;}).devCPackages;
   pythonPackages = (import ./packages/python {inherit pkgs pythonVer;}).devPythonPackages;
   jsPackages = (import ./packages/js {inherit pkgs nodeVer;}).jsPackages;
+  latexPackages = (import ./packages/latex {inherit pkgs;}).latexPackages;
   # packages = helper.importNixFiles ./packages;
   # Create final list of packages to be made available in the shell
   listOfFinalPackages = {
     installC = CPackages;
     installPython = [pythonPackages];
     installJS = jsPackages;
+    installLatex = latexPackages;
   };
 
   finalPackage =
@@ -69,10 +72,8 @@ in {
                 mkdir -p "./.vscode"
               fi
               cat << EOF > .vscode/settings.json
-                ${(import ./misc/write_vscode_settings.nix {inherit pkgs lib installC installJS installPython useLLVM pythonPackages;}).finalSettings}
-
+                ${(import ./misc/write_vscode_settings.nix {inherit pkgs lib installC installJS installPython installLatex useLLVM pythonPackages;}).finalSettings}
               EOF
-
               echo "VSCode settings have been successfully written"
             ''
             else "No VSCode settings were written"
