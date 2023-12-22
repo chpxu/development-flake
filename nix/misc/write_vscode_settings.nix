@@ -26,6 +26,7 @@
   };
   PythonVScodeSettings = {
     "pylint.interpreter" = ["python3"];
+    "pylint.enabled" = true;
     "python.analysis.autoImportCompletions" = true;
     "python.analysis.completeFunctionParens" = true;
     "python.analysis.typeCheckingMode" = "strict";
@@ -35,6 +36,15 @@
       else "python3";
     "python.diagnostics.sourceMapsEnabled" = true;
     "python.languageServer" = "Pylance";
+    # Configure extensions
+    "[python]" = {
+      "editor.defaultFormatter" = "ms-python.black-formatter";
+      "editor.formatOnSave" = true;
+    };
+
+    "mypy.dmypyExecutable" = "${pythonPackages}/bin/dmypy";
+    "mypy.runUsingActiveInterpreter" = true;
+    "mypy.enabled" = true;
   };
   JSVScodeSettings = {
     "[typescript]" = {

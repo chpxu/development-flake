@@ -15,6 +15,9 @@
         inherit system;
         config.allowUnfree = true;
         config.allowUnfreePredicate = _: true;
+        overlays = [
+          (import ./nix/overlays)
+        ];
       };
       # See nix/packages/default.nix to see what to pass into attrs set
       attrs = {
@@ -35,7 +38,6 @@
     in {
       # Set formatter
       formatter = pkgs.alejandra;
-      overlays = import ./nix/overlays;
       devShells.default = configuration.shellOverride {
         nativeBuildInputs = [
           pkgs.bashInteractive

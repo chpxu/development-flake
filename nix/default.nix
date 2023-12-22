@@ -78,6 +78,7 @@ in {
             ''
             else "No VSCode settings were written"
           }
+          export PATH=${pythonPackages}/bin/mypy:${pythonPackages}/bin/dmypy:${pythonPackages}/bin/black:$PATH
         '';
       };
   in (
