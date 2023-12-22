@@ -42,11 +42,13 @@ programs = {
 ## Features
 
 - `C/C++` based off [fufexan's config](https://gist.github.com/fufexan/2e7020d05ff940c255d74d5c5e712815)
-  - Summary: Clang/LLVM C/C++ development environment.
+  - Summary: GCC or Clang/LLVM C/C++ development environment.
 - `Python` with pre-installed packages intended for scientific work and visualisation.
-  - Default packages: `numpy, scipy, matplotlib`
+  - Default packages: `numpy, scipy, matplotlib`.
+  - Option for `Jupyter`
 - `Node/JS/TS` with pre-installed packages for `nodejs, yarn`.
   - The packages installed here are minimal since I prefer to use `package.json`s for each individual project.
+- `TeXLive 2022 Full`, with `LTeX-LS` and VSCode settings for `LaTeX Workshop` and `LTeX` extensions/ 
 - Easy modification of development environments for each language.
 <!-- - Setting up local `settings.json` for VSCode (WIP). -->
 ## Configuring for your own use
@@ -74,7 +76,7 @@ The `nix` folder structure looks something like this:
     │   │   └── # other js configuration files
     │   └── #  other languages
     ├── overlays/
-    │   └── overlays.nix
+    │   └── default.nix
     └── misc/
         ├── write_vscode_settings.nix
         ├── helper.nix
