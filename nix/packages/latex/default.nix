@@ -27,12 +27,14 @@ in {
     "latex-workshop.latex.recipes" = [
       {
         "name" = "lualatex ➞ biber ➞ lualatex -> lualatex";
-        "tools" = ["lualatex" "lualatex"];
+        "tools" = ["lualatex" "biber" "lualatex"];
       }
     ];
     "latex-workshop.latex.rootFile.doNotPrompt" = true;
     "latex-workshop.latex.tools" = [
       {
+        "name" = "lualatex";
+        "command" = "lualatex";
         "args" = [
           "-synctex=1"
           "-interaction=nonstopmode"
@@ -41,13 +43,12 @@ in {
           "-output-directory=%OUTDIR%"
           "%DOC%"
         ];
-        "command" = "lualatex";
-        "name" = "lualatex";
+        "env" = {"TEXMFHOME" = "${pkgs.texliveFull}";};
       }
       {
-        "args" = ["%DOCFILE%"];
         "command" = "biber";
         "name" = "biber";
+        "args" = ["%DOCFILE%"];
       }
     ];
     "latex-workshop.linting.chktex.enabled" = true;
