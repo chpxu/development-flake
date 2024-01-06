@@ -45,9 +45,11 @@ programs = {
   - Summary: GCC or Clang/LLVM C/C++ development environment.
 - `Python` with pre-installed packages intended for scientific work and visualisation.
   - Default packages: `numpy, scipy, matplotlib`.
-  - Option for `Jupyter`
+  - Option for `Jupyter`.
+  - Uses [black for code formatting](https://github.com/psf/black), [mypy for static type analysis](https://github.com/python/mypy) and [flake8](https://flake8.pycqa.org/en/latest/) for linting.
 - `Node/JS/TS` with pre-installed packages for `nodejs, yarn`.
   - The packages installed here are minimal since I prefer to use `package.json`s for each individual project.
+  - Uses Prettier for code formatting of HTML/Markdown/JS/TS/JSON etc. by default.
 - `TeXLive 2022 Full`, with `LTeX-LS` and VSCode settings for `LaTeX Workshop` and `LTeX` extensions/ 
 - Easy modification of development environments for each language.
 <!-- - Setting up local `settings.json` for VSCode (WIP). -->
