@@ -21,7 +21,7 @@
         # Could uncomment for other editors
         # pylint
       ]
-      ++ (lib.optional jupyter (import "./jupyter.nix"));
+      ++ (lib.optional jupyter (import (./. + "/jupyter.nix")));
 in {
   # Turn it into a list since functions expect a list of packages
   devPythonPackages = pkgs."python${pythonVer}".withPackages listOfPythonPackages;
