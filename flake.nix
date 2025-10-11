@@ -23,14 +23,15 @@
       attrs = {
         inherit pkgs;
         lib = pkgs.lib;
-        installC = true;
-        installPython = true;
+        installC = false;
+        installPython = false;
         installJS = false;
         installLatex = true;
         useLLVM = true;
-        llvmVer = "17";
-        pythonVer = "310";
-        nodeVer = "20";
+        llvmVer = "20";
+        pythonVer = "312";
+        nodeVer = "22";
+        gccVer = "14";
         enableVSCodeSetup = true;
       };
       # imports the shell and package configuration from `nix/default.nix`
@@ -45,7 +46,7 @@
           (
             if attrs.useLLVM
             then pkgs."llvmPackages_${attrs.llvmVer}".libstdcxxClang
-            else pkgs.gcc
+            else pkgs."gcc${attrs.gccVer}"
           )
         ];
         packages = configuration.packages ++ [pkgs.bashInteractive];
