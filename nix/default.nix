@@ -7,11 +7,11 @@
   installLatex,
   # Allow controlling the major version of packages to be installed.
   # Allows for more flexibility when configuring the shell
-  useLLVM ? true,
-  llvmVer ? "17",
-  pythonVer ? "310",
-  nodeVer ? "20",
-  gccVer ? "12",
+  useLLVM ? false,
+  llvmVer ? "20",
+  pythonVer ? "312",
+  nodeVer ? "22",
+  gccVer ? "14",
   # Allows the use of `misc/write_vscode_settings.nix`, which integrates nicely into VSCode configuration for the project.
   # Default false
   enableVSCodeSetup ? false,
