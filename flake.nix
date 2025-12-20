@@ -1,55 +1,49 @@
 {
-  description = "Opinionated Flake for Python/C/C++/JS Development";
-  inputs.nixpkgs = {
-    url = "github:NixOS/nixpkgs/aa9d4729cbc99dabacb50e3994dcefb3ea0f7447";
+  description = "Opinionated Flake for Fortran/Python/C/C++/JS Development";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    devshell.url = "github:numtide/devshell";
+    git-hooks-nix.url = "github:cachix/git-hooks.nix";
   };
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-parts,
+      devshell,
+      git-hooks-nix,
+      ...
+    }@inputs:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.devshell.flakeModule
+        inputs.git-hooks-nix.flakeModule
+        ./nix/packages/python/default.nix
+      ];
+      systems = [
+        "x86_64-linux"
+        "x86_64-darwin"
+      ];
+      perSystem =
+        {
+          config,
+          self',
+          inputs',
+          pkgs,
+          ...
+        }:
+        {
+          formatter = pkgs.nixfmt-rfc-style;
+          # packages = config.pre-commit.settings.enabledPackages;
+          pre-commit.settings.hooks.nixfmt.enable = true;
+          pre-commit.settings.hooks.nixfmt-rfc-style.enable = true;
+        };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-        config.allowUnfreePredicate = _: true;
-        overlays = [
-          (import ./nix/overlays)
-        ];
+      python = {
+        enable = true;
+        version = "313";
+        uv.enable = true;
       };
-      # See nix/packages/default.nix to see what to pass into attrs set
-      attrs = {
-        inherit pkgs;
-        lib = pkgs.lib;
-        installC = false;
-        installPython = false;
-        installJS = false;
-        installLatex = true;
-        useLLVM = true;
-        llvmVer = "20";
-        pythonVer = "312";
-        nodeVer = "22";
-        gccVer = "14";
-        enableVSCodeSetup = true;
-      };
-      # imports the shell and package configuration from `nix/default.nix`
-      configuration = import ./nix attrs;
-    in {
-      # Set formatter
-      formatter = pkgs.alejandra;
-      devShells.default = configuration.shellOverride {
-        nativeBuildInputs = [
-          pkgs.bashInteractive
-          pkgs.pkg-config
-          (
-            if attrs.useLLVM
-            then pkgs."llvmPackages_${attrs.llvmVer}".libstdcxxClang
-            else pkgs."gcc${attrs.gccVer}"
-          )
-        ];
-        packages = configuration.packages ++ [pkgs.bashInteractive];
-      };
-    });
+    };
 }
