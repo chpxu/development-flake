@@ -1,87 +1,42 @@
-{pkgs, ...}: let
-  # Replace this with command for your external PDF viewer
-  externalPDFViewer = "zathura";
-in {
-  # LaTeX Configuration: LuaLaTeX, BibLaTeX.
-  # Use ChkTeX, LTeX, LaCheck.
-  # Main usage: academic reports/papers/assignments
-  # Installs full TeXLive to not worry about dependencies.
-  latexPackages = with pkgs; [texliveFull jdk21 ltex-ls];
-  latexVSCodeSettings = {
-    # Configuration for LaTeX Workshop and LTeX.
-    "latex-workshop.hover.preview.enabled" = true;
-    "latex-workshop.hover.preview.mathjax.extensions" = [
-      "amscd"
-      "bbox"
-      "boldsymbol"
-      "braket"
-      "cases"
-      "colortbl"
-      "mathtools"
-      "physics"
-      "unicode"
-      "upgreek"
-    ];
-    "latex-workshop.intellisense.citation.backend" = "biblatex";
-    "latex-workshop.latex.autoBuild.run" = "onSave";
-    "latex-workshop.latex.recipes" = [
-      {
-        "name" = "lualatex ➞ biber ➞ lualatex -> lualatex";
-        "tools" = ["lualatex" "biber" "lualatex"];
-      }
-    ];
-    "latex-workshop.latex.rootFile.doNotPrompt" = true;
-    "latex-workshop.latex.tools" = [
-      {
-        "name" = "lualatex";
-        "command" = "lualatex";
-        "args" = [
-          "-synctex=1"
-          "-interaction=nonstopmode"
-          "-file-line-error"
-          "-output-format=pdf"
-          "-output-directory=%OUTDIR%"
-          "%DOC%"
-        ];
-        "env" = {"TEXMFHOME" = "${pkgs.texliveFull}";};
-      }
-      {
-        "command" = "biber";
-        "name" = "biber";
-        "args" = ["%DOCFILE%"];
-      }
-    ];
-    "latex-workshop.linting.chktex.enabled" = true;
-    "latex-workshop.linting.chktex.exec.args" = [
-      "-wall"
-      "-n22"
-      "-n21"
-      "-n30"
-      "-e16"
-      "-q"
-    ];
-    "latex-workshop.linting.lacheck.enabled" = true;
-    "latex-workshop.texcount.autorun" = "onSave";
-    "latex-workshop.view.pdf.external.synctex.args" = [
-      "--synctex-forward=%LINE:0:%TEX%"
-      "%PDF%"
-    ];
-    "latex-workshop.view.pdf.external.synctex.command" = externalPDFViewer;
-    "latex-workshop.view.pdf.external.viewer.args" = [
-      "--synctex-editor-command"
-      "code --no-sandbox --reuse-window -g \"%{input}:%{line}\""
-      "%PDF%"
-    ];
-    "latex-workshop.view.pdf.external.viewer.command" = externalPDFViewer;
-    "latex-workshop.view.pdf.viewer" = "tab";
-    "ltex.dictionary" = {
-      "en" = ["monic" "infimum" "supremum" "bolzano" "weierstrass" "euler"];
+{
+  lib,
+  config,
+  builtins,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.tex;
+  t = lib.types;
+in
+{
+  options.tex = { 
+    enable = lib.mkEnableOption "Whether to enable (La)TeX support in the environment";
+    environment = lib.mkOption {
+      type = t.package;
+      description = "Which TeX environment to use, e.g. texliveFull or tectonic, or make your own!";
+      default = pkgs.texliveMedium;
     };
-    "ltex.enabled" = true;
-    "ltex.language" = "en-GB";
-    "ltex.ltex-ls.path" = "${pkgs.ltex-ls}";
-    "ltex.statusBarItem" = true;
-    "ltex.additionalRules.motherTongue" = "en-GB";
-    "ltex.java.path" = "${pkgs.jdk21}";
+    ltex = lib.submodule {
+      enable = lib.mkEnableOption "Enable LTeX/LTeX+ support";
+      package = lib.mkOption {
+        type = t.package;
+        description = "Which LTeX package to install. Prefer LTeX+.";
+        default = pkgs.ltex-ls-plus;
+      };
+    };
+  };
+  config.tex = lib.mkIf cfg.enable {
+    perSystem =
+      { pkgs, ... }: rec
+      {
+        packages = [pkgs.coreutils cfg.environment] ++ lib.optionals cfg.ltex.enable [cfg.ltex.package];
+        env = [
+{ name = "PATH"; value ="${pkgs.lib.makeBinPath packages}";} # set PATH to the environment tex instance
+{ name = "TEXMFHOME"; value = ".cache";}
+{ name = "TEXMFVAR"; value = ".cache/texmf-var";} # for Nix-built LaTeX projects, this is what is expected, see https://github.com/chpxu/reproducible-latex-template/blob/main/flake.nix
+
+        ];
+      };
   };
 }

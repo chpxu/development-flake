@@ -36,6 +36,7 @@
           ...
         }:
         {
+          # config._module.args = [builtins];
           formatter = pkgs.nixfmt-rfc-style;
           # packages = config.pre-commit.settings.enabledPackages;
           pre-commit.settings.hooks.nixfmt.enable = true;
