@@ -1,43 +1,11 @@
 # Development Template with direnv
 
-Opinionated flake for development of various things I work on using multiple languages/frameworks/tools. Uses `flake-utils`, `direnv` and `nix-direnv`. The motivation for this is to create an environment which is easy to use
+Opinionated flake for development of various things I work on using multiple languages/frameworks/tools. Uses `flake-parts`, `numtide/devshell`, `direnv` and `nix-direnv`. The motivation for this is to create an environment which is easy to use and hooks well with editors/
 
 ## Workflow
 
 This flake is intended to fit with my workflow, which is with [Visual Studio Code](https://code.visualstudio.com), NixOS and direnv. This project is not intended to be a replacement or alternative to excellent projects such as direnv, devenv, lorri etc. The flake setups up a reproducible development environment for different programming contexts, and aims to be as declarative as possible whilst allowing some flexibility. 
 
-To use it:
-
-1. Install nix on your system.
-2. Have [`direnv`](https://direnv.net/) installed on your system (follow their instructions). Ideally use [`nix-direnv`](https://github.com/nix-community/nix-direnv) for faster and more persistent caching. You do not need NixOS as the Nix package manager can be installed anywhere, as can `home-manager`. Example configurations:
-
-```nix
-## home-manager example configuration
-# e.g. home.nix
-programs = {
-    direnv = {
-      enable = true;
-      enableZshIntegration = true;
-      nix-direnv.enable = true;
-    };
-
-    zsh.enable = true;
-  };
-
-# ====
-# System (NixOS) example configuration:
-{
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
-}
-```
-
-3. Click `"Use this template"` on GitHub, then `"Create a new repository"`. Follow the steps there, then clone your repository to somewhere locally on your own system
-4. Enter the repository folder.
-5. Modify the flake to include what you want.
-6. Run `direnv allow .` and it will drop you into the containerised environment.
 
 ## Features
 

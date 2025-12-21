@@ -7,6 +7,10 @@
 let
   cfg = config.cpp;
   t = lib.types;
+  # Take the following from numtide/devshell extra/languages/c because it's cool and I'm not sure how to use the internal files
+
+  addLibraries = lib.length cfg.libraries > 0;
+  addIncludes = lib.length cfg.includes > 0;
 in
 {
   options.cpp = {
@@ -90,6 +94,16 @@ in
           };
         };
       };
+      libraries = lib.mkOption {
+        type = t.listOf t.package;
+        default = [ ];
+        description = "For dynamic libraries";
+      };
+      includes = lib.mkOption {
+        type = t.listOf t.package;
+        default = [ ];
+        description = "Nixpkgs dependencies";
+      };
     };
   };
   config = lib.mkIf cfg.enable {
@@ -99,6 +113,8 @@ in
         devshells.default =
           { extraModulesPath, ... }@args:
           let
+            compiler =
+              if cfg.compiler == "clang" then pkgs."clang_${cfg.llvm.version}" else pkgs."gcc${cfg.gcc.version}";
             llvmPackages =
               if lib.versionAtLeast cfg.llvm.version 17 then
                 pkgs."llvmPackages_${cfg.llvm.version}"
@@ -107,29 +123,64 @@ in
           in
           {
             name = cfg.compiler;
-            packages =
-              [ ]
-              ++ lib.optional (cfg.compiler == "clang") (
-                with llvmPackages;
-                [
-                  clangUseLLVM
-                  bintools
-                  lldb
-                ]
-              )
-              ++ lib.optional cfg.ninja.enable [ pkgs.ninja ]
-              ++ lib.optional cfg.meson.enable [ pkgs.meson ];
-            env =
-              [ ] ++ lib.optional cfg.compiler == "clang" [
-                {
-                  name = "CC";
-                  value = "clang";
-                }
-                {
-                  name = "CXX";
-                  value = "clang++";
-                }
-              ];
+            packages = [
+              compiler
+            ]
+            ++ (lib.optionals addLibraries (map lib.getLib cfg.libraries))
+            ++ (lib.optionals addIncludes ([ pkgs.pkg-config ] ++ (map lib.getDev cfg.libraries)))
+            ++ lib.optional (cfg.compiler == "clang") (
+              with llvmPackages;
+              [
+                clangUseLLVM
+                bintools
+                lldb
+              ]
+            )
+            ++ lib.optional cfg.gcc.enable (
+              with pkgs;
+              [
+                valgrind
+                gdb
+                bintools
+              ]
+            )
+            ++ lib.optional cfg.ninja.enable [ pkgs.ninja ]
+            ++ lib.optional cfg.meson.enable [ pkgs.meson ];
+            env = [
+              {
+                name = "CC";
+                value = if cfg.llvm.enable then "clang" else "gcc";
+              }
+              {
+                name = "CXX";
+                value = if cfg.llvm.enable then "clang++" else "g++";
+              }
+            ]
+            ++ (lib.optionals addLibraries [
+              {
+                name = "LD_LIBRARY_PATH";
+                prefix = "$DEVSHELL_DIR/lib";
+              }
+              {
+                name = "LDFLAGS";
+                eval = "-L$DEVSHELL_DIR/lib";
+              }
+              {
+                name = "LIBRARY_PATH";
+                eval = "-L$DEVSHELL_DIR/lib";
+              }
+            ])
+            ++( lib.optionals addIncludes [
+              {
+                name = "C_INCLUDE_PATH";
+                prefix = "$DEVSHELL_DIR/include";
+              }
+              {
+                name = "PKG_CONFIG_PATH";
+                prefix = "$DEVSHELL_DIR/lib/pkgconfig";
+              }
+            ];)
+
           };
       };
   };
