@@ -22,6 +22,7 @@
         inputs.devshell.flakeModule
         inputs.git-hooks-nix.flakeModule
         ./nix/packages/python/default.nix
+        ./nix/packages/latex/default.nix
       ];
       systems = [
         "x86_64-linux"
@@ -35,6 +36,7 @@
           pkgs,
           ...
         }:
+
         {
           # config._module.args = [builtins];
           formatter = pkgs.nixfmt-rfc-style;
@@ -42,11 +44,6 @@
           pre-commit.settings.hooks.nixfmt.enable = true;
           pre-commit.settings.hooks.nixfmt-rfc-style.enable = true;
         };
-
-      python = {
-        enable = true;
-        version = "313";
-        uv.enable = true;
-      };
+      
     };
 }
