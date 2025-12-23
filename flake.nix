@@ -23,6 +23,7 @@
         inputs.git-hooks-nix.flakeModule
         ./nix/packages/python/default.nix
         ./nix/packages/latex/default.nix
+        ({...}: {config = inputs.devconfig or {};})
       ];
       systems = [
         "x86_64-linux"
@@ -43,7 +44,7 @@
           # packages = config.pre-commit.settings.enabledPackages;
           pre-commit.settings.hooks.nixfmt.enable = true;
           pre-commit.settings.hooks.nixfmt-rfc-style.enable = true;
+          
         };
-      
     };
 }
