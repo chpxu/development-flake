@@ -55,15 +55,15 @@ in
               #{ name = "PATH"; value ="${pkgs.lib.makeBinPath packages}";} # set PATH to the environment tex instance
               {
                 name = "TEXMFHOME";
-                value = ".cache";
+                value = "$DEVSHELL_DIR/.cache";
               }
               {
                 name = "TEXMFVAR";
-                value = ".cache/texmf-var";
+                value = "$DEVSHELL_DIR/.cache/texmf-var";
               }
               {
                 name = "TEXMFVAR";
-                value = ".cache/texmf-cache";
+                value = "$DEVSHELL_DIR/.cache/texmf-cache";
               } # for Nix-built LaTeX projects, this is what is expected, see https://github.com/chpxu/reproducible-latex-template/blob/main/flake.nix
 
             ];
