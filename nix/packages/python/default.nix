@@ -36,7 +36,8 @@
   t = lib.types;
 in {
   options.python = {
-    enable = lib.mkEnableOption "Enable python configuration.";
+    enable =
+     lib.mkOption  {type = t.bool; default = false; description = "Enable python in the environment.";};
     version = lib.mkOption {
       type = t.enum ["310" "311" "312" "313" "314" "315"]; #  Currently supported by NixOS 26.05
       default = "312";
@@ -50,7 +51,7 @@ in {
     uv = lib.mkOption {
       type = t.submodule {
         options = {
-          enable = lib.mkEnableOption "Enable managing python projects with uv instead of nixpkgs";
+          enable = lib.mkOption  {type = t.bool; default = false; description = "Enable managing python projects with uv instead of nixpkgs";};
           ruff = lib.mkOption {
             description = "Install the ruff linter, also by the uv developers";
             type = t.bool;
