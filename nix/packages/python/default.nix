@@ -29,29 +29,45 @@
 {
   lib,
   config,
-  builtins,
   ...
-}: let
+}:
+let
   cfg = config.python;
   t = lib.types;
-in {
+in
+{
   options.python = {
-    enable =
-     lib.mkOption  {type = t.bool; default = false; description = "Enable python in the environment.";};
+    enable = lib.mkOption {
+      type = t.bool;
+      default = false;
+      description = "Enable python in the environment.";
+    };
     version = lib.mkOption {
-      type = t.enum ["310" "311" "312" "313" "314" "315"]; #  Currently supported by NixOS 26.05
+      type = t.enum [
+        "310"
+        "311"
+        "312"
+        "313"
+        "314"
+        "315"
+      ]; # Currently supported by NixOS 26.05
       default = "312";
       description = "The python version to use in the project, e.g \"310\" corresponds to Python 3.10.";
     };
     package_template = lib.mkOption {
-      type = t.nullOr t.listOf lib.types.str;
-      default = null;
+      type = t.listOf t.str;
+      default = [];
       description = "Installs default packages under various namespaces located in the folder default_packages";
     };
     uv = lib.mkOption {
+      default = {};
       type = t.submodule {
         options = {
-          enable = lib.mkOption  {type = t.bool; default = false; description = "Enable managing python projects with uv instead of nixpkgs";};
+          enable = lib.mkOption {
+            type = t.bool;
+            default = false;
+            description = "Enable managing python projects with uv instead of nixpkgs";
+          };
           ruff = lib.mkOption {
             description = "Install the ruff linter, also by the uv developers";
             type = t.bool;
@@ -62,14 +78,37 @@ in {
     };
   };
   config = lib.mkIf cfg.enable {
-    perSystem = {pkgs, ...}: {
-      devshells.default = {extraModulesPath, ...} @ args: let
-        python = pkgs."python${cfg.version}";
-        pythonPackages = pkgs."python${cfg.version}Packages";
-      in (lib.mkMerge [
-        (lib.mkIf cfg.uv.enable (import ./uv.nix {inherit pkgs cfg python lib;}))
-        (lib.mkIf (!cfg.uv.enable) (import ./nix_python.nix {inherit pkgs cfg python lib pythonPackages builtins;}))
-      ]);
-    };
+    perSystem =
+      { pkgs, ... }:
+      {
+        devshells.default =
+          { extraModulesPath, ... }@args:
+          let
+            python = pkgs."python${cfg.version}";
+            pythonPackages = pkgs."python${cfg.version}Packages";
+          in
+          (lib.mkMerge [
+            (lib.mkIf cfg.uv.enable (
+              import ./uv.nix {
+                inherit
+                  pkgs
+                  config
+                  python
+                  lib
+                  ;
+              }
+            ))
+            (lib.mkIf (!cfg.uv.enable) (
+              import ./nix_python.nix {
+                inherit
+                  config
+                  python
+                  lib
+                  pythonPackages
+                  ;
+              }
+            ))
+          ]);
+      };
   };
 }
