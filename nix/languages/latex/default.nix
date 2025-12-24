@@ -39,7 +39,7 @@ in
     perSystem =
       { pkgs, ... }:
       rec {
-        devshells.default =
+        devshells.tex =
           { extraModulesPath, ... }@args:
           let
             texEnvironment = cfg.environment or pkgs.texliveMedium;

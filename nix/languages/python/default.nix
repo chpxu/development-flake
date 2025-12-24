@@ -81,7 +81,7 @@ in
     perSystem =
       { pkgs, ... }:
       {
-        devshells.default =
+        devshells.python =
           { extraModulesPath, ... }@args:
           let
             python = pkgs."python${cfg.version}";

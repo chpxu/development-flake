@@ -110,7 +110,7 @@ in
     perSystem =
       { pkgs, pkgsOlder, ... }:
       {
-        devshells.default =
+        devshells.cpp =
           { extraModulesPath, ... }@args:
           let
             compiler =
