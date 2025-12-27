@@ -19,14 +19,26 @@
       git-hooks-nix,
       ...
     }@inputs:
+    # let
+    #   import-tree = inputs.import-tree;
+    #   getLanguageDefaultNix = ((import-tree.match ".*/[a-z]+@(default)\.nix") ./nix/languages);
+    #   imports = builtins.concatLists [
+    #     [
+    #       inputs.devshell.flakeModule
+    #       inputs.git-hooks-nix.flakeModule
+    #     ]
+    #     (getLanguageDefaultNix.imports)
+    #   ];
+    # in
     flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        inputs.devshell.flakeModule
-        inputs.git-hooks-nix.flakeModule
-        ./nix/languages/default
-        ./nix/languages/python/default.nix
-        ./nix/languages/latex/default.nix
-      ];
+      imports =  [
+          inputs.devshell.flakeModule
+          inputs.git-hooks-nix.flakeModule
+          ./nix/languages/default
+          ./nix/languages/c
+          ./nix/languages/python
+          ./nix/languages/latex
+        ];
       systems = [
         "x86_64-linux"
         "x86_64-darwin"
@@ -54,15 +66,17 @@
           };
 
         };
-      templates = {
-        default = {
-          description = ''
-            Opinionated flake
-          '';
-          path = ./.;
-          welcomeText = ''
-            Welcome to devflake. Edit flake.nix to get started. See the README.md for more information.
-          '';
+      flake = {
+        templates = {
+          default = {
+            description = ''
+              Opinionated flake
+            '';
+            path = ./.;
+            welcomeText = ''
+              Welcome to devflake. Edit flake.nix to get started. See the README.md for more information.
+            '';
+          };
         };
       };
     };

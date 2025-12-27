@@ -179,7 +179,7 @@ in
                 name = "PKG_CONFIG_PATH";
                 prefix = "$DEVSHELL_DIR/lib/pkgconfig";
               }
-            ];)
+            ]);
 
           };
       };
