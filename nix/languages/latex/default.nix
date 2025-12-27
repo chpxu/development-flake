@@ -6,11 +6,11 @@
   ...
 }:
 let
-  cfg = config.tex;
+  cfg = config.languages.tex;
   t = lib.types;
 in
 {
-  options.tex = {
+  options.languages.tex = {
     enable = lib.mkEnableOption "Whether to enable (La)TeX support in the environment";
     environment = lib.mkOption {
       type = t.nullOr t.package;

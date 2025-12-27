@@ -83,6 +83,8 @@
             settings = {
               global.excludes = [
                 ".direnv/*"
+                "overlays/*"
+                "misc/*"
               ];
 
               formatter = {

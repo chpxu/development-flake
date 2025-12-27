@@ -9,7 +9,8 @@ This flake is intended to fit with my workflow, which is with [Visual Studio Cod
 
 ## Features
 
-- Based off `direnv`, nix flakes and `devshell` for easy to setup reproducible development environments.
+- Based off `direnv`, nix flakes and `devshell` for portable, easy, reproducible development environments.
+- Editor integration, with first-class support for Visual Studio Code/VSCodium (extensions permitting).
 - Configurable and extensible language support via the module system:
   - Languages which allow any number of includes/extra packages are automatically added with the creation of a file!
   - `C/C++` GCC or Clang/LLVM C/C++ development environment with options for alternate build systems.

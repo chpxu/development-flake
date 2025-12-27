@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg = config.cpp;
+  cfg = config.languages.cpp;
   t = lib.types;
   # Take the following from numtide/devshell extra/languages/c because it's cool and I'm not sure how to use the internal files
 
@@ -13,7 +13,7 @@ let
   addIncludes = lib.length cfg.includes > 0;
 in
 {
-  options.cpp = {
+  options.languages.cpp = {
     enable = lib.mkEnableOption "Enable C/C++ configuration.";
     compiler = lib.mkOption {
       type = t.enum [

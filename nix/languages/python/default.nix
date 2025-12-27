@@ -6,11 +6,11 @@
 }:
 let
   inherit (inputs) import-tree;
-  cfg = config.python;
+  cfg = config.languages.python;
   t = lib.types;
 in
 {
-  options.python = {
+  options.languages.python = {
     enable = lib.mkOption {
       type = t.bool;
       default = false;
