@@ -1,37 +1,11 @@
-# {
-#   pkgs,
-#   pythonVer,
-#   jupyter ? false,
-#   ...
-# }: let
-#   listOfPythonPackages = ps:
-#     with ps;
-#       [
-#         numpy
-#         scipy
-#         matplotlib
-#         pygments
-#         #formatter
-#         black
-#         #static type analysis
-#         mypy
-#         flake8
-#         # v3 of pylint is already out
-#         # use the version provided by VSCode extension
-#         # Could uncomment for other editors
-#         # pylint
-#       ]
-#       ++ (lib.optional jupyter (import (./. + "/jupyter.nix")));
-# in {
-#   # Turn it into a list since functions expect a list of packages
-#   devPythonPackages = pkgs."python${pythonVer}".withPackages listOfPythonPackages;
-# }
 {
   lib,
   config,
+  inputs,
   ...
 }:
 let
+  inherit (inputs) import-tree;
   cfg = config.python;
   t = lib.types;
 in
@@ -54,13 +28,10 @@ in
       default = "312";
       description = "The python version to use in the project, e.g \"310\" corresponds to Python 3.10.";
     };
-    package_template = lib.mkOption {
-      type = t.listOf t.str;
-      default = [];
-      description = "Installs default packages under various namespaces located in the folder default_packages";
-    };
     uv = lib.mkOption {
-      default = {};
+      default = {
+        enable = false;
+      };
       type = t.submodule {
         options = {
           enable = lib.mkOption {
@@ -86,29 +57,39 @@ in
           let
             python = pkgs."python${cfg.version}";
             pythonPackages = pkgs."python${cfg.version}Packages";
-          in
-          (lib.mkMerge [
-            (lib.mkIf cfg.uv.enable (
-              import ./uv.nix {
+            # Get list of files
+            # Define map to import each file ands the `packages` function
+            # This will form a list of `packages` functios
+            # Here, packages is a function so we must concat all and pass it into python.withPackages
+            # Wrap this in a function so it is not always called, e.g. if we're using uv
+            evaluatePackages = {}: rec {
+              allPythonFilePaths = (import-tree.withLib pkgs.lib).leafs ./packages;
+              importPythonEnvs = map (path: (import path { inherit pythonPackages; }).packages) allPythonFilePaths;
+              allPythonPackages = builtins.concatLists importPythonEnvs;
+              finalPythonEnv = python.withPackages (_: allPythonPackages);
+            };
+            evaluateUV = (import ./uv.nix {
                 inherit
                   pkgs
                   config
                   python
                   lib
                   ;
-              }
-            ))
-            (lib.mkIf (!cfg.uv.enable) (
-              import ./nix_python.nix {
-                inherit
-                  config
-                  python
-                  lib
-                  pythonPackages
-                  ;
-              }
-            ))
-          ]);
+              });
+          in
+          {
+            devshell = {
+              name = "python";
+              motd = "";
+            };
+            packages = lib.mkMerge [
+              (lib.mkIf cfg.uv.enable (evaluateUV.packages))
+              (lib.mkIf (!cfg.uv.enable) (evaluatePackages {}).finalPythonEnv)
+            ];
+            env = evaluateUV.env or [];
+          
+
+          };
       };
   };
 }

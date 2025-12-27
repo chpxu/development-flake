@@ -5,6 +5,7 @@
     nixpkgs2505.url = "github:NixOS/nixpkgs/2b0d2b456e4e8452cf1c16d00118d145f31160f9"; # to use for older packages
     flake-parts.url = "github:hercules-ci/flake-parts/a34fae9c08a15ad73f295041fec82323541400a9";
     devshell.url = "github:numtide/devshell/17ed8d9744ebe70424659b0ef74ad6d41fc87071";
+    import-tree.url = "github:vic/import-tree/3c23749d8013ec6daa1d7255057590e9ca726646";
     git-hooks-nix.url = "github:cachix/git-hooks.nix/b68b780b69702a090c8bb1b973bab13756cc7a27";
   };
   outputs =
@@ -14,6 +15,7 @@
       nixpkgs2505,
       flake-parts,
       devshell,
+      import-tree,
       git-hooks-nix,
       ...
     }@inputs:
@@ -21,8 +23,9 @@
       imports = [
         inputs.devshell.flakeModule
         inputs.git-hooks-nix.flakeModule
+        ./nix/languages/default
         ./nix/languages/python/default.nix
-        ./nix/languages/latex/default.nix
+        # ./nix/languages/latex/default.nix
       ];
       systems = [
         "x86_64-linux"
@@ -50,6 +53,10 @@
             };
           };
 
+        };
+        python = {
+          enable = true;
+          uv.enable = true;
         };
     };
 }

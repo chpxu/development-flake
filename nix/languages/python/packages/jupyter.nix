@@ -1,13 +1,12 @@
-{}: {
-  jupyterpkgs = ps:
-    with ps; [
+{pythonPackages, ...}: {
+  packages =
+     with pythonPackages; [
       ipykernel
       jupyter-core
       jupyterlab
-      jupyterlab_server
+      jupyterlab-server
       jupyterlab-widgets
       jupyterlab-pygments
-      jupyterlab_launcher
       jupyterlab-lsp
     ];
 }
