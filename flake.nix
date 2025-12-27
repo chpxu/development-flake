@@ -7,6 +7,7 @@
     devshell.url = "github:numtide/devshell/17ed8d9744ebe70424659b0ef74ad6d41fc87071";
     import-tree.url = "github:vic/import-tree/3c23749d8013ec6daa1d7255057590e9ca726646";
     git-hooks-nix.url = "github:cachix/git-hooks.nix/b68b780b69702a090c8bb1b973bab13756cc7a27";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
   };
   outputs =
     {
@@ -16,6 +17,7 @@
       flake-parts,
       devshell,
       import-tree,
+      treefmt-nix,
       git-hooks-nix,
       ...
     }@inputs:
@@ -31,14 +33,15 @@
     #   ];
     # in
     flake-parts.lib.mkFlake { inherit inputs; } {
-      imports =  [
-          inputs.devshell.flakeModule
-          inputs.git-hooks-nix.flakeModule
-          ./nix/languages/default
-          ./nix/languages/c
-          ./nix/languages/python
-          ./nix/languages/latex
-        ];
+      imports = [
+        inputs.devshell.flakeModule
+        inputs.treefmt-nix.flakeModule
+        inputs.git-hooks-nix.flakeModule
+        ./nix/languages/default
+        ./nix/languages/c
+        ./nix/languages/python
+        ./nix/languages/latex
+      ];
       systems = [
         "x86_64-linux"
         "x86_64-darwin"
@@ -63,8 +66,36 @@
               enable = true;
               after = [ "nixfmt-rfc-style" ];
             };
-          };
+            treefmt = {
+              enable = true;
+              package = self'.formatter;
+            };
 
+          };
+          treefmt = {
+            projectRootFile = "flake.nix";
+            programs = {
+              deadnix.enable = true;
+              statix.enable = true;
+              nixfmt.enable = true;
+            };
+
+            settings = {
+              global.excludes = [
+                ".direnv/*"
+              ];
+
+              formatter = {
+                deadnix.priority = 1;
+                statix.priority = 2;
+                nixfmt = {
+                  priority = 3;
+                  strict = true;
+                  indent = 2;
+                };
+              };
+            };
+          };
         };
       flake = {
         templates = {

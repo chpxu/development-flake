@@ -175,10 +175,11 @@ I don't really use anything other than NixOS and VSCode. I don't do development 
 ## Credits and inspiration :rocket:
 
 - [fufexan's C/C++ config](https://gist.github.com/fufexan/2e7020d05ff940c255d74d5c5e712815) which got me started on using these languages in nix years ago
-- [Vortriz/scientific-env](https://github.com/Vortriz/scientific-env/) which gave me a concrete example of how to use `flake-parts` and `numtide/devshell`.
+- [Vortriz/scientific-env](https://github.com/Vortriz/scientific-env/) which gave me a concrete example of how to use `flake-parts` and `numtide/devshell`, as well as for statix, deadnix and treefmt-nix.
 - [vic/import-tree](https://github.com/vic/import-tree) for making importing very powerful and easy
 - [flake-parts](https://github.com/hercules-ci/flake-parts) for an absolutely amazing multi-flake library
 - [flake-utils](https://github.com/numtide/flake-utils) for getting me started on this journey
 - [numtide/devshell](https://github.com/numtide/devshell) for simplifying the creation of numerous devShells!
 - [oppiliappan/statix](https://github.com/oppiliappan/statix)
 - [astro/deadnix](https://github.com/astro/deadnix)
+- [treefmt-nix](https://github.com/numtide/treefmt-nix/)
