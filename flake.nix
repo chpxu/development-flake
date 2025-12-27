@@ -25,7 +25,7 @@
         inputs.git-hooks-nix.flakeModule
         ./nix/languages/default
         ./nix/languages/python/default.nix
-        # ./nix/languages/latex/default.nix
+        ./nix/languages/latex/default.nix
       ];
       systems = [
         "x86_64-linux"
@@ -54,9 +54,16 @@
           };
 
         };
-        python = {
-          enable = true;
-          uv.enable = true;
+      templates = {
+        default = {
+          description = ''
+            Opinionated flake
+          '';
+          path = ./.;
+          welcomeText = ''
+            Welcome to devflake. Edit flake.nix to get started. See the README.md for more information.
+          '';
         };
+      };
     };
 }
