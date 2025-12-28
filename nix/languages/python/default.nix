@@ -86,11 +86,10 @@ in
               name = "python";
               motd = "";
             };
-            # packages = lib.mkMerge [
-            #   (lib.mkIf cfg.uv.enable (evaluateUV.packages))
-            #   (lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages)))
-            # ];
-            packages = [(lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages)))];
+            packages = lib.mkMerge [
+              (lib.mkIf cfg.uv.enable (evaluateUV.packages))
+              [(lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages)))]
+            ];
             env = evaluateUV.env or [];
           
 
