@@ -39,6 +39,11 @@ in
             default = true;
             description = "Whether to add mypy to the environment.";
           };
+          pylance = lib.mkOption {
+            type = t.bool;
+            default = false;
+            description = "Whether to add the Pylance language server to VSCode.";
+          };
         };
       };
     };

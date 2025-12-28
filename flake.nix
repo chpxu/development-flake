@@ -32,7 +32,7 @@
     #     (getLanguageDefaultNix.imports)
     #   ];
     # in
-    flake-parts.lib.mkFlake { inherit inputs; } {
+    flake-parts.lib.mkFlake { inherit inputs; specialArgs = {helpers = import ./nix/helpers;};} {
       imports = [
         inputs.devshell.flakeModule
         inputs.treefmt-nix.flakeModule
@@ -41,6 +41,7 @@
         ./nix/languages/c
         ./nix/languages/python
         ./nix/languages/latex
+        ./nix/editors/vscode
       ];
       systems = [
         "x86_64-linux"
