@@ -1,9 +1,4 @@
-{
-  pkgs,
-  inputs,
-  lib,
-  ...
-}:
+
 rec {
   importFromFiles =
     {
@@ -17,14 +12,16 @@ rec {
     {
       path,
       attrs,
+      inputs,
+      lib,
       ...
-    }@args:
-    rec {
-      allFilePaths = (inputs.import-tree.withLib pkgs.lib).leafs path;
+    }:
+     rec {
+      allFilePaths = (inputs.import-tree.withLib lib).leafs path;
       doImport = importFromFiles {
         list = allFilePaths;
         targetAttr = "packages";
-        inherit (args) attrs;
+        inherit attrs;
       };
       allPackages = builtins.concatLists doImport;
     };
@@ -42,6 +39,8 @@ rec {
       conditional,
       path,
       target,
+      lib,
+      ...
     }:
     map (x: lib.optionals (conditional x) path) target;
 }
