@@ -1,5 +1,7 @@
 # :snowflake: devflake :snowflake:
 
+**STATUS: UNSTABLE**
+
 Opinionated flake for development of various things I work on using multiple languages/frameworks/tools. Uses `flake-parts`, `numtide/devshell`, `direnv` and `nix-direnv`. The motivation for this is to create an environment which is easy to use and hooks well with editors (particularly VSCode).
 
 ## Workflow
@@ -13,7 +15,7 @@ This flake is intended to fit with my workflow, which is with [Visual Studio Cod
 - Editor integration, with first-class support for Visual Studio Code/VSCodium (extensions permitting).
 - Configurable and extensible language support via the module system:
   - Languages which allow any number of includes/extra packages are automatically added with the creation of a file!
-  - `C/C++` GCC or Clang/LLVM C/C++ development environment with options for alternate build systems.
+  - `C/C++` GCC or Clang/LLVM C/C++ development environment with options for build systems, libraries and includes.
   - `Python` with pre-installed packages intended for scientific work and visualisation.
   - `Node/JS/TS` with options for TypeScript, and package managers like npm, pnpm, yarn.
   - Reproducible LaTeX environment with support for LTeX+.
@@ -46,9 +48,9 @@ To minimise clutter with projects, the majority of configuration is done inside 
 
 ### Why you might not want to use devflake
 
-1. It is _very_ nix-ified and if you haven't figured out a way to make your environment more nix-independent (e.g. using `uv` for Python, which this flake supports) then it may well not be worth your time.
-2. It is an opinionated abstraction layer ontop of `numtide/devshell` and `flake-parts`, and you may find that you need more of their featureset than what I provide.
-3. Unstable: this version has come fresh out of the refactor oven. I hope to not make (too many?) any breaking changes afterwards
+1. It is _very_ nix-ified and there is only limited support for nix independence (e.g. using `uv` for Python or `yarn` for JavaScript); it may well not be worth your time in this case.
+2. It is an opinionated abstraction layer ontop of `numtide/devshell` and `flake-parts`, and you may find that you need more of their featureset than what I provide, or you just don't like what I've done (fair enough!).
+3. Unstable: this version has come fresh out of the refactor oven. I am currently working to get this refactor stable for daily usage.
 
 ## Extending devflake
 
@@ -108,7 +110,19 @@ in
 }
 ```
 3. Add this file to `imports` inside `flake.nix`. (TODO: make this automatic). This then exposes `languages.foo` as an option to configure.
-
+4. Add a generic file to each of `nix/editors/**/languages/foo.nix`, e.g.
+```nix
+# e.g. nix/editors/vscode/languages/foo.nix
+{pkgs, ...}: {
+  settings = {
+    
+  };
+  extensions = {
+    recommendations = [];
+  };
+}
+```
+This is to stop the flake from breaking (it automatically assumes these files exist).
 ### Non nixpkgs software
 
 You should follow the instructions to construct a package for your software, e.g. use `pkgs.python3.pkgs.buildPythonPackage`, or `stdenv.mkDerivation`. You should then add your package into the respective language's `packages` attribute (or inside the `python3.withPackages` call for Python).
@@ -149,28 +163,43 @@ Currently this is WIP, and my main goal is making sure this flake works well wit
 ### Visual Studio Code
 
 1. Have the [direnv extension](https://marketplace.visualstudio.com/items?itemName=mkhl.direnv) installed (either globally or in your workspace). Ensure you trust your workspace so it can execute shell scripts. 
+2. Once you enter your project root, run `nix develop .#editorConfig`.
+3. Run `gensettings`.
 
-The repository contains a file `misc/write_vscode_settings.nix` which converts sets of Nix expressions to a JSON string, and then writes to `.vscode/settings.json` in the directory where the flake is located. The file created *is* editable which means you can mess around with settings after the original file is created, however the file is not prettified and you may want external tools like `jq` or an extension like `Prettier` to auto-format it back to a readable state.
+This creates `.vscode/settings.json` in the project root directory. This is world-writeable and thus not controlled by nix once it has been created.
 
-TODO: this is currently under refactor.
+**NOTE: you can only run `gensettings` inside the `editorConfig` devshell. If you switch to a different devshell, this functionality will NOT BE AVAILABLE until you switch back.**
+
+The relevant files to edit are contained in `nix/editors/vscode`.
+- `default.nix` contains the code which determines what settings to write, as well as the writing code itself. It uses `pkgs.writeShellScriptBin` and adds it as a package to the `editorConfig` devshell.
+- `languages/<language>.nix`: files which contain 2 attribute sets: `settings` and `extensions`. The former is a JSON atom which gets written into `.vscode/settings.json`. The latter, if non-empty, will write to `.vscode/extensions.json` and will suggest extensions to install the first time you enter your workspace.
+
+STATUS: feature parity has now been maintained with stable, and is more flexible and extensible. However, changes are still to be expected. 
 
 ### (Neo)Vim (untested)
 
 1. Install [vim-direnv](https://github.com/direnv/direnv.vim) with your plugin manager.
 
 Launching vim from the directory of the project, after direnv has loaded, should hopefully make it pick up the right environment variables. Open an issue if it doesn't work.
+
+STATUS: parity with stable.
 ### Emacs (untested)
 
 1. Install [emacs-direnv](https://github.com/wbolster/emacs-direnv).
 
 Launching emacs from the directory of the project, after direnv has loaded, should hopefully make it pick up the right environment variables.
 
+
+STATUS: parity with stable.
+
 ## Contributing
 
 Thanks for viewing this repo!
 
-I don't really use anything other than NixOS and VSCode. I don't do development on Windows anymore. Extending the flake to cope with some other editors or platforms would be greatly appreciated and would help a bunch of others if they ever happen to come across this.
+I don't really use anything other than NixOS and VSCode. I do not develop on Windows or Mac (even though I've enabled support for `x86_64-darwin`, this is because I expect it to function pretty much the same). Extending the flake to cope with some other editors or platforms would be greatly appreciated and would help a bunch of others if they ever happen to come across this flake and find it useful :pray:.
 
+
+To contribute, please look at [extending-devflake](#extending-devflake).
 ## Other niceties
 
 - [zsh](https://www.zsh.org/) and [starship](https://starship.rs/).
