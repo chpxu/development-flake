@@ -28,6 +28,20 @@ in
       default = "312";
       description = "The python version to use in the project, e.g \"310\" corresponds to Python 3.10.";
     };
+    tools = lib.mkOption {
+      default = {
+        mypy = true;
+      };
+      type = t.submodule {
+        options = {
+          mypy = lib.mkOption {
+            type = t.bool;
+            default = true;
+            description = "Whether to add mypy to the environment.";
+          };
+        };
+      };
+    };
     uv = lib.mkOption {
       default = {
         enable = false;
@@ -57,17 +71,7 @@ in
           let
             python = pkgs."python${cfg.version}";
             pythonPackages = pkgs."python${cfg.version}Packages";
-            # Get list of files
-            # Define map to import each file ands the `packages` function
-            # This will form a list of `packages` functios
-            # Here, packages is a function so we must concat all and pass it into python.withPackages
-            # Wrap this in a function so it is not always called, e.g. if we're using uv
-            evaluatePackages = {}: rec {
-              allPythonFilePaths = (import-tree.withLib pkgs.lib).leafs ./packages;
-              importPythonEnvs = map (path: (import path { inherit pythonPackages; }).packages) allPythonFilePaths;
-              allPythonPackages = builtins.concatLists importPythonEnvs;
-              finalPythonEnv = python.withPackages (_: allPythonPackages);
-            };
+            finalPythonPackages = (import ./packages.nix {inherit config pythonPackages lib;}).packages;
             evaluateUV = (import ./uv.nix {
                 inherit
                   pkgs
@@ -82,10 +86,11 @@ in
               name = "python";
               motd = "";
             };
-            packages = lib.mkMerge [
-              (lib.mkIf cfg.uv.enable (evaluateUV.packages))
-              (lib.mkIf (!cfg.uv.enable) (evaluatePackages {}).finalPythonEnv)
-            ];
+            # packages = lib.mkMerge [
+            #   (lib.mkIf cfg.uv.enable (evaluateUV.packages))
+            #   (lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages)))
+            # ];
+            packages = [(lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages)))];
             env = evaluateUV.env or [];
           
 

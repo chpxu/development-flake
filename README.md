@@ -29,18 +29,20 @@ To minimise clutter with projects, the majority of configuration is done inside 
   ```nix
     outputs = {...} @ inputs {
       # ... other stuff you can ignore
-      python = {
-        enable = true;
-      };
-      tex = {
-        enable = true;
-        ltex.enable = true;
+      languages = { 
+        python = {
+          enable = true;
+        };
+        tex = {
+          enable = true;
+          ltex.enable = true;
+        };
       };
     }
   ```
 3. Depending on what you have enabled, you can now switch to an isolated sandbox for those languages!
   - If you enabled `python`: `nix develop .#python`
-  - See `nix/languages/*/default.nix` to see the available configuration options.
+  - See `nix/languages/**/default.nix` to see the available configuration options.
 
 ### Why you might not want to use devflake
 
@@ -71,7 +73,7 @@ let
   t = lib.types;
 in
 {
-  options.foo = {
+  options.languages.foo = {
     enable = lib.mkOption {
       type = t.bool;
       default = false;
@@ -105,7 +107,7 @@ in
   };
 }
 ```
-3. Add this file to `imports` inside `flake.nix`. (TODO: make this automatic). This then exposes `foo` as an option to configure.
+3. Add this file to `imports` inside `flake.nix`. (TODO: make this automatic). This then exposes `languages.foo` as an option to configure.
 
 ### Non nixpkgs software
 
