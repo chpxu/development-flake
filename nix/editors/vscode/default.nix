@@ -41,18 +41,21 @@ in
           lang: lib.optional cfg.${lang}.enable ./languages/${lang}.nix
         ) (builtins.attrNames cfg); # get array of file paths for activated environments
         genSettings = map (file: (import file { inherit pkgs config lib; }).settings) (getEnabledLanguages); # list of attrset
+        genExtensions = map (file: (import file { inherit pkgs config lib; }).extensions.recommendations) (getEnabledLanguages); # list of attrset
         settingsToJSON = builtins.toJSON (lib.mergeAttrsList genSettings); # form one giant setting attrset
+        extensionsToJSON = builtins.toJSON (lib.mergeAttrsList genExtensions);
         #  = ;
         settingsScript = pkgs.writeShellScriptBin "settings.sh" (
             ''
               #!/bin/bash 
-              echo "Writing VSCode settings and/or extensions to the project root directory"
+              echo "Writing VSCode settings and extensions to the project root directory/.vscode"
               if [ ! -e ".vscode" ]; then
                 mkdir -p "./.vscode"
               fi
 
               cat << EOF > .vscode/settings.json
               ${builtins.toString settingsToJSON}
+              ${builtins.toString extensionsToJSON}
               EOF
               echo "VSCode settings have been successfully written"
             ''
@@ -72,7 +75,7 @@ in
                 command = ''
                   ${settingsScript}/bin/settings.sh
                 '';
-                help = "Command to generate .vscode/settings.json";
+                help = "Command to generate .vscode/settings.json and .vscode/extensions.json";
               }
             ];
         };

@@ -199,7 +199,7 @@ Thanks for viewing this repo!
 I don't really use anything other than NixOS and VSCode. I do not develop on Windows or Mac (even though I've enabled support for `x86_64-darwin`, this is because I expect it to function pretty much the same). Extending the flake to cope with some other editors or platforms would be greatly appreciated and would help a bunch of others if they ever happen to come across this flake and find it useful :pray:.
 
 
-To contribute, please look at [extending-devflake](#extending-devflake).
+To contribute, please look at [extending-devflake](#extending-devflake)
 ## Other niceties
 
 - [zsh](https://www.zsh.org/) and [starship](https://starship.rs/).
