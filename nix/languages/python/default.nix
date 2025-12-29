@@ -72,19 +72,19 @@ in
       { pkgs, ... }:
       {
         devshells.python =
-          { extraModulesPath, ... }@args:
+          { extraModulesPath, ... }:
           let
             python = pkgs."python${cfg.version}";
             pythonPackages = pkgs."python${cfg.version}Packages";
-            finalPythonPackages = (import ./packages.nix {inherit config pythonPackages lib;}).packages;
-            evaluateUV = (import ./uv.nix {
-                inherit
-                  pkgs
-                  config
-                  python
-                  lib
-                  ;
-              });
+            finalPythonPackages = (import ./packages.nix { inherit config pythonPackages lib; }).packages;
+            evaluateUV = import ./uv.nix {
+              inherit
+                pkgs
+                config
+                python
+                lib
+                ;
+            };
           in
           {
             devshell = {
@@ -92,11 +92,10 @@ in
               motd = "";
             };
             packages = lib.mkMerge [
-              (lib.mkIf cfg.uv.enable (evaluateUV.packages))
-              [(lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages)))]
+              (lib.mkIf cfg.uv.enable evaluateUV.packages)
+              [ (lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages))) ]
             ];
-            env = evaluateUV.env or [];
-          
+            env = evaluateUV.env or [ ];
 
           };
       };

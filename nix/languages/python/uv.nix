@@ -4,8 +4,9 @@
   lib,
   config,
   ...
-}: {
-  packages = [pkgs.uv] ++ lib.optional config.python.uv.ruff [pkgs.ruff];
+}:
+{
+  packages = [ pkgs.uv ] ++ lib.optional config.python.uv.ruff [ pkgs.ruff ];
   env = [
     # https://wiki.nixos.org/wiki/Python#using_uv
     {

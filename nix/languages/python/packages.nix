@@ -11,7 +11,7 @@ let
   genOptionals = map (tool: lib.optionals cfg.tools.${tool} pythonPackages.${tool}) (
     builtins.attrNames cfg.tools
   );
-  concatOptionals =  genOptionals; # flattened list of pythonPackages
+  concatOptionals = genOptionals; # flattened list of pythonPackages
 in
 {
   packages = builtins.concatLists [
@@ -21,6 +21,5 @@ in
     ])
     concatOptionals
   ];
-
 
 }

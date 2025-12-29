@@ -32,86 +32,98 @@
     #     (getLanguageDefaultNix.imports)
     #   ];
     # in
-    flake-parts.lib.mkFlake { inherit inputs; specialArgs = {helpers = import ./nix/helpers;};} {
-      imports = [
-        inputs.devshell.flakeModule
-        inputs.treefmt-nix.flakeModule
-        inputs.git-hooks-nix.flakeModule
-        ./nix/languages/default
-        ./nix/languages/c
-        ./nix/languages/python
-        ./nix/languages/latex
-        ./nix/editors/vscode
-      ];
-      systems = [
-        "x86_64-linux"
-        "x86_64-darwin"
-      ];
-      perSystem =
-        {
-          config,
-          self',
-          inputs',
-          pkgs,
-          ...
-        }:
+    flake-parts.lib.mkFlake
+      {
+        inherit inputs;
+        specialArgs = {
+          helpers = import ./nix/helpers;
+        };
+      }
+      {
+        imports = [
+          inputs.flake-parts.flakeModules.easyOverlay
+          inputs.devshell.flakeModule
+          inputs.treefmt-nix.flakeModule
+          inputs.git-hooks-nix.flakeModule
+          ./nix/languages/default
+          ./nix/languages/c
+          ./nix/languages/python
+          ./nix/languages/latex
+          ./nix/editors/vscode
+        ];
+        systems = [
+          "x86_64-linux"
+          "x86_64-darwin"
+        ];
+        perSystem =
+          {
+            config,
+            self',
+            inputs',
+            pkgs,
+            system,
+            ...
+          }:
 
-        {
-          # config._module.args = [builtins];
-          formatter = pkgs.nixfmt-rfc-style;
-          # packages = config.pre-commit.settings.enabledPackages;
-          pre-commit.settings.hooks = {
-            nixfmt.enable = true;
-            nixfmt-rfc-style.enable = true;
-            flake-checker = {
-              enable = true;
-              after = [ "nixfmt-rfc-style" ];
+          {
+            formatter = pkgs.nixfmt-rfc-style;
+            pre-commit.settings.hooks = {
+              nixfmt.enable = true;
+              nixfmt-rfc-style.enable = true;
+              flake-checker = {
+                enable = true;
+                after = [ "nixfmt-rfc-style" ];
+              };
+              treefmt = {
+                enable = true;
+                package = self'.formatter;
+              };
+
             };
             treefmt = {
-              enable = true;
-              package = self'.formatter;
-            };
+              projectRootFile = "flake.nix";
+              programs = {
+                deadnix.enable = true;
+                statix.enable = true;
+                nixfmt.enable = true;
+              };
 
-          };
-          treefmt = {
-            projectRootFile = "flake.nix";
-            programs = {
-              deadnix.enable = true;
-              statix.enable = true;
-              nixfmt.enable = true;
-            };
+              settings = {
+                global.excludes = [
+                  ".direnv/*"
+                ];
 
-            settings = {
-              global.excludes = [
-                ".direnv/*"
-                "overlays/*"
-                "misc/*"
-              ];
-
-              formatter = {
-                deadnix.priority = 1;
-                statix.priority = 2;
-                nixfmt = {
-                  priority = 3;
-                  strict = true;
-                  indent = 2;
+                formatter = {
+                  deadnix.priority = 1;
+                  statix.priority = 2;
+                  nixfmt = {
+                    priority = 3;
+                    strict = true;
+                    indent = 2;
+                  };
                 };
               };
             };
           };
-        };
-      flake = {
-        templates = {
-          default = {
-            description = ''
-              Opinionated flake
-            '';
-            path = ./.;
-            welcomeText = ''
-              Welcome to devflake. Edit flake.nix to get started. See the README.md for more information.
-            '';
+        flake = {
+          modules = [
+            {
+              nixpkgs.overlays = [
+                (import ./overlays)
+              ];
+            }
+          ];
+          templates = {
+            default = {
+              description = ''
+                Opinionated flake
+              '';
+              path = ./.;
+              welcomeText = ''
+                Welcome to devflake. Edit flake.nix to get started. See the README.md for more information.
+              '';
+            };
           };
         };
       };
-    };
 }
