@@ -49,7 +49,7 @@
           ./nix/languages/python
           ./nix/languages/c
           ./nix/languages/latex
-          # ./nix/editors/vscode
+          ./nix/editors/vscode
 
         ];
         systems = [

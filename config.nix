@@ -9,6 +9,11 @@
       environment = pkgs.texliveBasic;
       ltex.enable = true;
     };
+    cpp = {
+      enable = true;
+      gcc.enable = true;
+
+    };
   };
   
 }

@@ -1,4 +1,3 @@
-
 rec {
   importFromFiles =
     {
@@ -16,7 +15,7 @@ rec {
       lib,
       ...
     }:
-     rec {
+    rec {
       allFilePaths = (inputs.import-tree.withLib lib).leafs path;
       doImport = importFromFiles {
         list = allFilePaths;
@@ -43,4 +42,31 @@ rec {
       ...
     }:
     map (x: lib.optionals (conditional x) path) target;
+
+  selectFromOlderPkgs =
+    {
+      lib,
+      pkgs,
+      pkgsOlder,
+      packageName,
+      versionCriterion,
+      versionConfig,
+    }:
+    if lib.versionAtLeast versionConfig versionCriterion then
+      pkgs."${packageName}${builtins.toString versionConfig}"
+    else
+      pkgsOlder."${packageName}${versionConfig}";
+  selectFromOlderPkgsInt =
+    {
+      lib,
+      pkgs,
+      pkgsOlder,
+      packageName,
+      versionCriterion,
+      versionConfig,
+    }:
+    if versionConfig < versionCriterion then
+      pkgsOlder."${packageName}${builtins.toString versionConfig}"
+    else
+      pkgs."${packageName}${builtins.toString versionConfig}";
 }
