@@ -1,11 +1,10 @@
 {
-  pkgs,
   config,
   lib,
   ...
 }:
 let
-  cfg = config.languages.c;
+  cfg = config.languages.cpp;
 in
 {
   settings = {
