@@ -14,6 +14,9 @@
       gcc.enable = true;
 
     };
+    js = {
+      enable = true;
+    };
   };
   
 }

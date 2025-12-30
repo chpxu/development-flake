@@ -5,15 +5,14 @@
   ...
 }:
 let
-  inherit (inputs) import-tree;
-  
   t = lib.types;
 in
 {
   perSystem =
-    { pkgs, config, ... }: let
+    { pkgs, config, ... }:
+    let
       cfg = config.languages.python;
-      in
+    in
     {
       options.languages.python = {
         enable = lib.mkOption {
@@ -35,7 +34,7 @@ in
         };
         nixPackages = lib.mkOption {
           type = t.listOf t.package;
-          default = [];
+          default = [ ];
           description = "List of package attributes from python*Packages, e.g. with pythonPackages; [numpy scipy] etc.";
         };
         tools = lib.mkOption {
