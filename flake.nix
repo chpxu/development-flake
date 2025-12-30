@@ -21,37 +21,27 @@
       git-hooks-nix,
       ...
     }@inputs:
-    # let
-    #   import-tree = inputs.import-tree;
-    #   getLanguageDefaultNix = ((import-tree.match ".*/[a-z]+@(default)\.nix") ./nix/languages);
-    #   imports = builtins.concatLists [
-    #     [
-    #       inputs.devshell.flakeModule
-    #       inputs.git-hooks-nix.flakeModule
-    #     ]
-    #     (getLanguageDefaultNix.imports)
-    #   ];
-    # in
-    flake-parts.lib.mkFlake
-      {
-        inherit inputs;
-        specialArgs = {
-          helpers = import ./nix/helpers;
-        };
-      }
-      {
-        imports = [
+    let
+      import-tree = inputs.import-tree;
+      getLanguageDefaultNix = ((import-tree.match ".*/default\\.nix") ./nix/languages);
+      getEditorDefaultNix = ((import-tree.match ".*/default\\.nix") ./nix/editors);
+      imports = builtins.concatLists [
+        [
           inputs.flake-parts.flakeModules.easyOverlay
           inputs.devshell.flakeModule
           inputs.treefmt-nix.flakeModule
           inputs.git-hooks-nix.flakeModule
-          ./nix/languages/default
-          ./nix/languages/python
-          ./nix/languages/c
-          ./nix/languages/latex
-          ./nix/editors/vscode
-
-        ];
+        ]
+        getLanguageDefaultNix.imports
+        getEditorDefaultNix.imports
+      ];
+    in
+    flake-parts.lib.mkFlake
+      {
+        inherit inputs;
+      }
+      {
+        imports = imports;
         systems = [
           "x86_64-linux"
           "x86_64-darwin"
@@ -69,8 +59,16 @@
             userConfig = import ./config.nix { inherit pkgs; };
           in
           {
-
+            _module.args = {
+              pkgsOlder = import nixpkgs2505 {
+                inherit system inputs';
+              };
+              helper = import ./nix/helpers;
+            };
             imports = [ userConfig ]; # settings from config.nix defined by user
+            packages.upgrade = pkgs.writeShellScriptBin "upgrade.sh" ''
+
+            '';
             formatter = pkgs.nixfmt-rfc-style;
             pre-commit.settings.hooks = {
               nixfmt.enable = true;
