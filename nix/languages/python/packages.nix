@@ -15,10 +15,7 @@ let
 in
 {
   packages = builtins.concatLists [
-    (with pythonPackages; [
-      # Insert your own custom pythonpackages here
-      numpy
-    ])
+    cfg.nixPackages
     concatOptionals
   ];
 

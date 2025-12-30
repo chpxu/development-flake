@@ -5,113 +5,116 @@
   ...
 }:
 let
-  cfg = config.languages.cpp;
   t = lib.types;
-  # Take the following from numtide/devshell extra/languages/c because it's cool and I'm not sure how to use the internal files
-
-  addLibraries = lib.length cfg.libraries > 0;
-  addIncludes = lib.length cfg.includes > 0;
 in
 {
-  options.languages.cpp = {
-    enable = lib.mkEnableOption "Enable C/C++ configuration.";
-    compiler = lib.mkOption {
-      type = t.enum [
-        "gcc"
-        "clang"
-      ];
-      description = "Whether to use gcc or Clang/LLVM compiler";
-      default = "gcc";
-    };
-    gcc = lib.mkOption {
-      enable = lib.mkIf cfg.compiler == "gcc";
-      description = "Produces a gcc backend (i.e. nothing is done really).";
-      type = t.submodule {
-        version = lib.mkOption {
-          # You may wish to use an older nixpkgs commit (e.g. 25.05) and change these so it works with your needs
-          # NixOS 25.05 is the last version to support GCC 9 - 12. This is included in this flake for backwards compat.
-          type = t.ints.between 9 15;
-          default = 15;
-          description = "The GCC version to use. Defaults to GCC13. NixOS 25.05 is the last version to support GCC 9  through to 12.";
+
+  perSystem =
+    { pkgs, pkgsOlder, config, ... }:
+    let
+      # Take the following from numtide/devshell extra/languages/c because it's cool and I'm not sure how to use the internal files
+
+      cfg = config.languages.cpp;
+      addLibraries = lib.length cfg.libraries > 0;
+      addIncludes = lib.length cfg.includes > 0;
+    in
+    {
+      options.languages.cpp = {
+        enable = lib.mkEnableOption "Enable C/C++ configuration.";
+        compiler = lib.mkOption {
+          type = t.enum [
+            "gcc"
+            "clang"
+          ];
+          description = "Whether to use gcc or Clang/LLVM compiler";
+          default = "gcc";
         };
-      };
-    };
-    llvm = lib.mkOption {
-      enable = lib.mkIf cfg.compiler == "clang";
-      description = "Produces a LLVM-compiled clang backend.";
-      type = t.submodule {
-        version = lib.mkOption {
-          # You may wish to use an older nixpkgs commit (e.g. 25.05) and change these so it works with your needs
-          # NixOS 25.05 is the last version to support LLVM 12 - 17. This is included in this flake for backwards compat.
-          type = t.ints.between 12 20;
-          default = 20;
-          description = "The LLVM version to use. Defaults to LLVM20. NixOS 25.05 is the last version to support LLVM 12  through to 17.";
+        gcc = lib.mkOption {
+          enable = lib.mkIf cfg.compiler == "gcc";
+          description = "Produces a gcc backend (i.e. nothing is done really).";
+          type = t.submodule {
+            version = lib.mkOption {
+              # You may wish to use an older nixpkgs commit (e.g. 25.05) and change these so it works with your needs
+              # NixOS 25.05 is the last version to support GCC 9 - 12. This is included in this flake for backwards compat.
+              type = t.ints.between 9 15;
+              default = 15;
+              description = "The GCC version to use. Defaults to GCC13. NixOS 25.05 is the last version to support GCC 9  through to 12.";
+            };
+          };
         };
-        packages = lib.mkOption {
-          type = t.nullOr t.listOf t.packages;
-          default = null;
-          description = "Install packages from llvmPackages_version";
+        llvm = lib.mkOption {
+          enable = lib.mkIf cfg.compiler == "clang";
+          description = "Produces a LLVM-compiled clang backend.";
+          type = t.submodule {
+            version = lib.mkOption {
+              # You may wish to use an older nixpkgs commit (e.g. 25.05) and change these so it works with your needs
+              # NixOS 25.05 is the last version to support LLVM 12 - 17. This is included in this flake for backwards compat.
+              type = t.ints.between 12 20;
+              default = 20;
+              description = "The LLVM version to use. Defaults to LLVM20. NixOS 25.05 is the last version to support LLVM 12  through to 17.";
+            };
+            packages = lib.mkOption {
+              type = t.nullOr t.listOf t.packages;
+              default = null;
+              description = "Install packages from llvmPackages_version";
+            };
+          };
         };
-      };
-    };
-    cmake = lib.mkOption {
-      type = t.submodule {
-        options = {
-          enable = lib.mkEnableOption "Adds CMake to the environment.";
-          default = false;
-          cmakeVersion = lib.mkOption {
-            type = t.enum [
-              3
-              4
-            ];
-            description = "The CMake version to use, either 3 or 4. Defaults to 4 (corresponds to CMake 4.x on NixOS Unstable). 3 corresponds to 3.31.2 on NixOS 25.05.";
+        cmake = lib.mkOption {
+          type = t.submodule {
+            options = {
+              enable = lib.mkEnableOption "Adds CMake to the environment.";
+              default = false;
+              cmakeVersion = lib.mkOption {
+                type = t.enum [
+                  3
+                  4
+                ];
+                description = "The CMake version to use, either 3 or 4. Defaults to 4 (corresponds to CMake 4.x on NixOS Unstable). 3 corresponds to 3.31.2 on NixOS 25.05.";
+              };
+            };
+          };
+        };
+        ninja = lib.mkOption {
+          enable = lib.mkEnableOption "Install the ninja backend.";
+          withCmake = lib.mkOption {
+            type = t.bool;
+            default = lib.mkDefault cfg.cmake.enable;
+            description = "Force CMake to use Ninja via CMAKE_GENERATOR.";
+          };
+        };
+        meson = lib.mkOption {
+          enable = lib.mkEnableOption "Install the meson backend.";
+        };
+        gnumake = lib.mkOption {
+          type = t.submodule {
+            options = {
+              enable = lib.mkEnableOption "Adds GNU Make to the environment.";
+              default = true;
+              gnumakeVersion = lib.mkOption {
+                type = t.enum [
+                  "4.2"
+                  "4.4"
+                ];
+                description = "The GNU Make version to use, either \"4.2\" (NixOS 25.05) or \"4.4\" (NixOS 26.05 Unstable). Defaults to \"4.4\".";
+              };
+            };
+          };
+          libraries = lib.mkOption {
+            type = t.listOf t.package;
+            default = [ ];
+            description = "For dynamic libraries";
+          };
+          includes = lib.mkOption {
+            type = t.listOf t.package;
+            default = [ ];
+            description = "Nixpkgs dependencies";
           };
         };
       };
-    };
-    ninja = lib.mkOption {
-      enable = lib.mkEnableOption "Install the ninja backend.";
-      withCmake = lib.mkOption {
-        type = t.bool;
-        default = lib.mkDefault cfg.cmake.enable;
-        description = "Force CMake to use Ninja via CMAKE_GENERATOR.";
-      };
-    };
-    meson = lib.mkOption {
-      enable = lib.mkEnableOption "Install the meson backend.";
-    };
-    gnumake = lib.mkOption {
-      type = t.submodule {
-        options = {
-          enable = lib.mkEnableOption "Adds GNU Make to the environment.";
-          default = true;
-          gnumakeVersion = lib.mkOption {
-            type = t.enum [
-              "4.2"
-              "4.4"
-            ];
-            description = "The GNU Make version to use, either \"4.2\" (NixOS 25.05) or \"4.4\" (NixOS 26.05 Unstable). Defaults to \"4.4\".";
-          };
-        };
-      };
-      libraries = lib.mkOption {
-        type = t.listOf t.package;
-        default = [ ];
-        description = "For dynamic libraries";
-      };
-      includes = lib.mkOption {
-        type = t.listOf t.package;
-        default = [ ];
-        description = "Nixpkgs dependencies";
-      };
-    };
-  };
-  config = lib.mkIf cfg.enable {
-    perSystem =
-      { pkgs, pkgsOlder, ... }:
-      {
+      config = lib.mkIf cfg.enable {
         devshells.cpp =
-          { extraModulesPath, ... }@args:
+          { extraModulesPath, ... }:
           let
             compiler =
               if cfg.compiler == "clang" then pkgs."clang_${cfg.llvm.version}" else pkgs."gcc${cfg.gcc.version}";
@@ -170,7 +173,7 @@ in
                 eval = "-L$DEVSHELL_DIR/lib";
               }
             ])
-            ++( lib.optionals addIncludes [
+            ++ (lib.optionals addIncludes [
               {
                 name = "C_INCLUDE_PATH";
                 prefix = "$DEVSHELL_DIR/include";
@@ -183,7 +186,7 @@ in
 
           };
       };
-  };
+    };
 
   # devCPackages = with pkgs;
   #   [

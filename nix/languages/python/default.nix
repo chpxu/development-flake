@@ -6,71 +6,78 @@
 }:
 let
   inherit (inputs) import-tree;
-  cfg = config.languages.python;
+  
   t = lib.types;
 in
 {
-  options.languages.python = {
-    enable = lib.mkOption {
-      type = t.bool;
-      default = false;
-      description = "Enable python in the environment.";
-    };
-    version = lib.mkOption {
-      type = t.enum [
-        "310"
-        "311"
-        "312"
-        "313"
-        "314"
-        "315"
-      ]; # Currently supported by NixOS 26.05
-      default = "312";
-      description = "The python version to use in the project, e.g \"310\" corresponds to Python 3.10.";
-    };
-    tools = lib.mkOption {
-      default = {
-        mypy = true;
-      };
-      type = t.submodule {
-        options = {
-          mypy = lib.mkOption {
-            type = t.bool;
-            default = true;
-            description = "Whether to add mypy to the environment.";
+  perSystem =
+    { pkgs, config, ... }: let
+      cfg = config.languages.python;
+      in
+    {
+      options.languages.python = {
+        enable = lib.mkOption {
+          type = t.bool;
+          default = false;
+          description = "Enable python in the environment.";
+        };
+        version = lib.mkOption {
+          type = t.enum [
+            "310"
+            "311"
+            "312"
+            "313"
+            "314"
+            "315"
+          ]; # Currently supported by NixOS 26.05
+          default = "312";
+          description = "The python version to use in the project, e.g \"310\" corresponds to Python 3.10.";
+        };
+        nixPackages = lib.mkOption {
+          type = t.listOf t.package;
+          default = [];
+          description = "List of package attributes from python*Packages, e.g. with pythonPackages; [numpy scipy] etc.";
+        };
+        tools = lib.mkOption {
+          default = {
+            mypy = true;
           };
-          pylance = lib.mkOption {
-            type = t.bool;
-            default = false;
-            description = "Whether to add the Pylance language server to VSCode.";
+          type = t.submodule {
+            options = {
+              mypy = lib.mkOption {
+                type = t.bool;
+                default = true;
+                description = "Whether to add mypy to the environment.";
+              };
+              pylance = lib.mkOption {
+                type = t.bool;
+                default = false;
+                description = "Whether to add the Pylance language server to VSCode.";
+              };
+            };
+          };
+        };
+        uv = lib.mkOption {
+          default = {
+            enable = false;
+          };
+          type = t.submodule {
+            options = {
+              enable = lib.mkOption {
+                type = t.bool;
+                default = false;
+                description = "Enable managing python projects with uv instead of nixpkgs";
+              };
+              ruff = lib.mkOption {
+                description = "Install the ruff linter, also by the uv developers";
+                type = t.bool;
+                default = false;
+              };
+            };
           };
         };
       };
-    };
-    uv = lib.mkOption {
-      default = {
-        enable = false;
-      };
-      type = t.submodule {
-        options = {
-          enable = lib.mkOption {
-            type = t.bool;
-            default = false;
-            description = "Enable managing python projects with uv instead of nixpkgs";
-          };
-          ruff = lib.mkOption {
-            description = "Install the ruff linter, also by the uv developers";
-            type = t.bool;
-            default = false;
-          };
-        };
-      };
-    };
-  };
-  config = lib.mkIf cfg.enable {
-    perSystem =
-      { pkgs, ... }:
-      {
+      config = lib.mkIf cfg.enable {
         devshells.python =
           { extraModulesPath, ... }:
           let
@@ -99,5 +106,5 @@ in
 
           };
       };
-  };
+    };
 }

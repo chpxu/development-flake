@@ -46,10 +46,11 @@
           inputs.treefmt-nix.flakeModule
           inputs.git-hooks-nix.flakeModule
           ./nix/languages/default
-          ./nix/languages/c
           ./nix/languages/python
+          ./nix/languages/c
           ./nix/languages/latex
-          ./nix/editors/vscode
+          # ./nix/editors/vscode
+
         ];
         systems = [
           "x86_64-linux"
@@ -64,8 +65,12 @@
             system,
             ...
           }:
-
+          let
+            userConfig = import ./config.nix { inherit pkgs; };
+          in
           {
+
+            imports = [ userConfig ]; # settings from config.nix defined by user
             formatter = pkgs.nixfmt-rfc-style;
             pre-commit.settings.hooks = {
               nixfmt.enable = true;
