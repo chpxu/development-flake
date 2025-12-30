@@ -34,6 +34,11 @@ in
     {
       options.languages.cpp = {
         enable = lib.mkEnableOption "Enable C/C++ configuration.";
+        env = lib.mkOption {
+          type = t.listOf t.attrs;
+          default = [];
+          description = "Additional environment variables to add.";
+        };
         compiler = lib.mkOption {
           type = t.enum [
             "gcc"
@@ -235,7 +240,7 @@ in
                 name = "PKG_CONFIG_PATH";
                 prefix = "$DEVSHELL_DIR/lib/pkgconfig";
               }
-            ]);
+            ]) ++ cfg.env;
 
           };
       };

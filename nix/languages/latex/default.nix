@@ -42,7 +42,11 @@ in
           };
 
         };
-
+        env = lib.mkOption {
+          type = t.listOf t.attrs;
+          default = [];
+          description = "Additional environment variables to add.";
+        };
       };
       config = lib.mkIf cfg.enable {
         devshells.tex =
@@ -75,7 +79,7 @@ in
                 value = "$DEVSHELL_DIR/.cache/texmf-cache";
               } # for Nix-built LaTeX projects, this is what is expected, see https://github.com/chpxu/reproducible-latex-template/blob/main/flake.nix
 
-            ];
+            ] ++ cfg.env;
           };
 
       };

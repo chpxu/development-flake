@@ -32,6 +32,11 @@ in
           default = "312";
           description = "The python version to use in the project, e.g \"310\" corresponds to Python 3.10.";
         };
+        env = lib.mkOption {
+          type = t.listOf t.attrs;
+          default = [];
+          description = "Additional environment variables to add.";
+        };
         nixPackages = lib.mkOption {
           type = t.listOf t.package;
           default = [ ];
@@ -101,7 +106,7 @@ in
               (lib.mkIf cfg.uv.enable evaluateUV.packages)
               [ (lib.mkIf (!cfg.uv.enable) (python.withPackages (_: finalPythonPackages))) ]
             ];
-            env = evaluateUV.env or [ ];
+            env = cfg.env ++ (evaluateUV.env);
 
           };
       };

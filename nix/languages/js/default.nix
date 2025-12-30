@@ -103,11 +103,7 @@ in
                 cfg.nodePackages
               ]
             );
-          env = [
-
-          ]
-          ++ cfg.env
-          ++ lib.optionals cfg.asdf [
+          env = lib.optionals cfg.asdf [
             {
               # https://asdf-vm.com/guide/getting-started.html
               name = "ASDF_DATA_DIR";
@@ -123,7 +119,7 @@ in
               name = "COREPACK_HOME";
               value = "$PRJ_ROOT/.cache/node/corepack";
             }
-          ];
+          ] ++ cfg.env;
         };
       };
     };
