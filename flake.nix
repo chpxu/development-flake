@@ -67,7 +67,60 @@
             };
             imports = [ userConfig ]; # settings from config.nix defined by user
             packages.upgrade = pkgs.writeShellScriptBin "upgrade.sh" ''
+              #https://stackoverflow.com/questions/2657935/checking-for-a-dirty-index-or-untracked-files-with-git
+              echo "This script will attempt to 'upgrade' the devflake template with the latest release (i.e. not from the main branch)"
+              sleep .5s
+              echo "This is a DESTRUCTIVE OPERATION on the following files and directories: flake.nix, flake.lock, ./nix/{languages,helpers,editors/**/default.nix}. It will replace the files IN-PLACE."
+              sleep .5s
+              echo "config.nix will NOT BE TOUCHED, but its attributes MAY CAUSE ERRORS THE NEXT TIME YOU REBUILD."
+              echo "Any configuration in overlays or the language-specific editor configurations will NOT BE TOUCHED, and hopefully should not cause any errors depending on how complex your configuration is"
+              echo "This script will copy the entire nix directory, flake.nix, flake.lock and config.nix into a folder called 'nix-backup'"
+              echo "This script will check if git is available from the environment, to warn of potentially untracked files. If git is not found, the script will continue assuming you have backed up everything"
+              echo "This script will also check for curl. If curl is not found, the script will exit before anything happens"
+              echo "????HAVE YOU BACKED UP YOUR STUFF YET????"
+              read -n 1 -p "PRESS A KEY TO CONFIRM YOU HAVE BACKED UP. YOU ASSUME THE CONSEQUENCES, IF THEY HAPPEN:" tempinputvar
+              # === BEGIN PROGRAM ===
+              # Check git exists in the shell
+              if ! command -v git >/dev/null 2>&1
+              then
+                  echo "git could not be found"
+              else
+                  git ls-files --others --error-unmatch . >/dev/null 2>&1; ec=$?
+                if test "$ec" = 0; then
+                    echo "Untracked files exist in this project. Will not risk updating template. Exiting..."
+                    exit(1) 
+                elif test "$ec" = 1; then
+                    echo "No untracked files"
+                else
+                    echo "Error from git ls-files"
+                fi
+              fi
+            if ! command -v curl >/dev/null 2>&1
+            then
+                echo "curl could not be found, exiting"
+                exit 1
+            fi
+            # ==== CREATING BACKUP ====
+            echo "CREATING BACKUP"
+            backupdir="nix-backup"
+            if  [ ! -e "$backupdir" ]; then
+              mkdir -p "$backupdir"
+            else
+              echo "nix-backup folder already exists. Delete and then re-run this script. Exiting..."
+              exit 1
+            fi
 
+            cp flake.nix "$backupdir"
+            cp config.nix "$backupdir"
+            cp flake.lock "$backupdir"
+            cp statix.toml "$backupdir"
+            cp -r ./nix $backupdir
+
+            # === FETCHING LATEST TEMPLATE ===
+            echo "FETCHING LATEST TEMPLATE"
+            # This URL will be correct once the refactor is on main branch
+            curl -sL https://api.github.com/repos/chpxu/development-flake/releases/download/TODO
+            exit 1
             '';
             formatter = pkgs.nixfmt-rfc-style;
             pre-commit.settings.hooks = {
