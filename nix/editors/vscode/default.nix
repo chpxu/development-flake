@@ -1,6 +1,5 @@
-{ config, lib, ... }:
+{ lib, ... }:
 let
-  cfg = config.vscode;
   t = lib.types;
 in
 {
@@ -8,6 +7,7 @@ in
     { pkgs, config, ... }:
     let
       cfg = config.languages;
+      cfgcode = config.editors.vscode;
       getEnabledLanguages = builtins.concatMap (
         lang: lib.optional cfg.${lang}.enable ./languages/${lang}.nix
       ) (builtins.attrNames cfg); # get array of file paths for activated environments
@@ -28,16 +28,21 @@ in
         fi
 
         cat << EOF > .vscode/settings.json
-        ${builtins.toString settingsToJSON}
-        ${builtins.toString extensionsToJSON}
+        ${if cfgcode.enableSettings then (builtins.toString settingsToJSON) else "{}"}
         EOF
+        
         echo "VSCode settings have been successfully written"
+
+        cat << EOF > .vscode/extensions.json
+        ${if cfgcode.enableExtensions then (builtins.toString extensionsToJSON) else "{ \"recommendations\" = []}"}
+        EOF
+        echo "VSCode extensions.json have been successfully written"
       '');
     in
     {
       # We add settings depending on which languages are enabled
       # Import configuration from ./languages/<language>.nix
-      options.vscode = {
+      options.editors.vscode = {
         enableSettings = lib.mkOption {
           type = t.bool;
           default = true;
@@ -49,7 +54,7 @@ in
           description = "Allow writing `.vscode/extensions.json` to allow extension recommendations for languages.";
         };
       };
-      config = {
+      config = lib.mkIf (cfgcode.enableSettings or cfgcode.enableExtensions) {
         devshells.editorSettings = {
           devshell = {
             name = "editorConfig";
