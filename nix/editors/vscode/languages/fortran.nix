@@ -2,11 +2,10 @@
   config,
   pkgs,
   ...
-}:
-let
+}: let
   cfg = config.languages.fortran;
-in
-{
+  gfortran = pkgs."gfortran${toString cfg.gfortran.version}";
+in {
   settings = {
     "fortran.linter.includePaths" = [
       "\${workspaceFolder}/include/**"
@@ -19,7 +18,7 @@ in
       "-Wunused-dummy-argument"
     ];
     "fortran.linter.compiler" = "gfortran"; # Nixpkgs only has gfortran
-    "fortran.linter.compilerPath" = "${cfg.package}/bin/gfortran";
+    "fortran.linter.compilerPath" = "${gfortran}/bin/gfortran";
     "fortran.formatting.formatter" = "fprettify"; # Only fprettify is in nixpkgs right now, and I prefer it anyways
     "fortran.formatting.path" = "${pkgs.fprettify}";
     "fortran.provide.symbols" = "fortls";
