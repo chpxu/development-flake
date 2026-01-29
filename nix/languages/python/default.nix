@@ -39,6 +39,11 @@ in {
       nixPackages = lib.mkOption {
         type = t.listOf t.package;
         default = [];
+        description = "List of package attributes from nixpkgs.";
+      };
+      extraPythonPackages = lib.mkOption {
+        type = t.listOf t.package;
+        default = [];
         description = "List of package attributes from python*Packages, e.g. with pythonPackages; [numpy scipy] etc.";
       };
       tools = lib.mkOption {
