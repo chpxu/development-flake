@@ -1,12 +1,13 @@
-
-{pkgs, ...}:{
+{pkgs, ...}: {
   languages = {
     python = {
-        enable = true;
+      enable = true;
     };
     fortran = {
       enable = true;
     };
+    typst = {
+      enable = true;
+    };
   };
-  
 }

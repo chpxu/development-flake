@@ -74,7 +74,7 @@ in {
             selectGCC
           ]
           # We add a python environment
-          ++ lib.optional (config.languages.python.enable && cfg.fprettify.enable) [
+          ++ lib.optionals (config.languages.python.enable && cfg.fprettify.enable) [
             pkgs.fprettify
           ];
       };

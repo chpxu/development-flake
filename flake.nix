@@ -8,6 +8,8 @@
     import-tree.url = "github:vic/import-tree/3c23749d8013ec6daa1d7255057590e9ca726646";
     git-hooks-nix.url = "github:cachix/git-hooks.nix/b68b780b69702a090c8bb1b973bab13756cc7a27";
     treefmt-nix.url = "github:numtide/treefmt-nix";
+
+    typst.url = "github:typst/typst-flake";
   };
   outputs = {
     self,
@@ -18,6 +20,7 @@
     import-tree,
     treefmt-nix,
     git-hooks-nix,
+    typst,
     ...
   } @ inputs: let
     import-tree = inputs.import-tree;
