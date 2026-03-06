@@ -20,7 +20,7 @@ in {
     "fortran.linter.compiler" = "gfortran"; # Nixpkgs only has gfortran
     "fortran.linter.compilerPath" = "${gfortran}/bin/gfortran";
     "fortran.formatting.formatter" = "fprettify"; # Only fprettify is in nixpkgs right now, and I prefer it anyways
-    "fortran.formatting.path" = "${pkgs.fprettify}/bin";
+    "fortran.formatting.path" = "${cfg.fprettify.package}/bin/fprettify";
     "fortran.provide.symbols" = "fortls";
     "fortran.preferredCase" = "lowercase"; # I prefer lowercase but uppercase is an option too
   };

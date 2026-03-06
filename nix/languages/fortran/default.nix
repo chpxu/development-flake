@@ -42,6 +42,11 @@ in {
               type = t.bool;
               default = true;
             };
+            package = lib.mkOption {
+              type = t.package;
+              default = pkgs.fprettify;
+              description = "The fprettify package to use.";
+            };
           };
         };
       };
@@ -75,7 +80,7 @@ in {
           ]
           # We add a python environment
           ++ lib.optionals (config.languages.python.enable && cfg.fprettify.enable) [
-            pkgs.fprettify
+            cfg.fprettify.package
           ];
       };
     };
