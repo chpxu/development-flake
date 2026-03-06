@@ -25,6 +25,11 @@ in {
         default = [];
         description = "Additional environment variables to add.";
       };
+      tinymist.enable = lib.mkOption {
+        type = t.bool;
+        default = true;
+        description = "Enable tinymist.";
+      };
     };
     config = lib.mkIf cfg.enable {
       treefmt = {
@@ -67,7 +72,7 @@ in {
             help = "Shorthand for `typst watch file.typ`";
           }
         ];
-        packages = [typst-pkg];
+        packages = [typst-pkg] ++ lib.optionals cfg.tinymist.enable [pkgs.tinymist];
         env =
           cfg.env
           ++ [
