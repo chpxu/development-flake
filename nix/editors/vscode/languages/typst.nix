@@ -10,7 +10,7 @@ in {
     "tinymist.configureDefaultWordSeparator" = "disable";
     "tinymist.copyAndPaste" = "enable";
     "tinymist.dragAndDrop" = "enable";
-    "tinymist.exportPdf" = "onSave";
+    "tinymist.exportPdf" = "onType";
     "tinymist.exportTarget" = "paged";
     "tinymist.formatterIndentSize" = 2;
     "tinymist.formatterMode" = "typstyle";
@@ -19,7 +19,7 @@ in {
     "tinymist.preview.refresh" = "onSave";
     "tinymist.preview.scrollSync" = "onSelectionChangeByMouse";
     "tinymist.previewFeature" = "enable";
-    "tinymist.projectResolution" = "singleFile";
+    "tinymist.projectResolution" = "lockDatabase";
     "tinymist.renderDocs" = "enable";
     "tinymist.semanticTokens" = "enable";
     "tinymist.syntaxOnly" = "enable";

@@ -56,22 +56,29 @@ in {
           motd = "LaTeX but faster?";
         };
 
-        commands = [
-          {
-            name = "tc";
-            command = ''
-              typst compile "$1".typ
-            '';
-            help = "Shorthand for `typst compile file.typ`";
-          }
-          {
-            name = "tw";
-            command = ''
-              typst watch "$1".typ
-            '';
-            help = "Shorthand for `typst watch file.typ`";
-          }
-        ];
+        commands =
+          [
+            {
+              name = "tc";
+              command = ''
+                typst compile "$1".typ
+              '';
+              help = "Shorthand for `typst compile file.typ`";
+            }
+            {
+              name = "tw";
+              command = ''
+                typst watch "$1".typ
+              '';
+              help = "Shorthand for `typst watch file.typ`";
+            }
+          ]
+          ++ lib.optionals cfg.tinymist.enable [
+            {
+              name = "tmcs";
+              command = ''tinymist compile --save-lock "$1".typ'';
+            }
+          ];
         packages = [typst-pkg] ++ lib.optionals cfg.tinymist.enable [pkgs.tinymist];
         env =
           cfg.env
