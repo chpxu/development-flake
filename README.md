@@ -13,6 +13,7 @@ This flake is intended to fit with my workflow, which is with [Visual Studio Cod
 
 - Based off `direnv`, nix flakes and `devshell` for portable, easy, reproducible development environments.
 - Editor integration, with first-class support for Visual Studio Code/VSCodium (extensions permitting).
+- Formatting support either with `treefmt-nix` or standard config files 
 - Configurable and extensible language support via the module system:
   - Languages which allow any number of includes/extra packages are (semi)-automatically added with the creation of a file!
   - `C/C++` GCC or Clang/LLVM C/C++ development environment with options for build systems, libraries and includes.
@@ -20,6 +21,7 @@ This flake is intended to fit with my workflow, which is with [Visual Studio Cod
   - `Node/JS/TS` with options for [corepack](https://github.com/nodejs/corepack), [asdf](https://asdf-vm.com/) and package manager configuration for [pnpm](https://pnpm.io/) and [yarn](https://yarnpkg.com).
   - `Fortran` support with `gfortran`, enabling debugger and the `fortls` language server with [Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran).
   - Reproducible LaTeX environment with support for [LTeX+](https://ltex-plus.github.io/ltex-plus/index.html).
+  - `Typst` with [tinymist](https://myriad-dreamin.github.io/tinymist/introduction.html)
 
 <!-- - Setting up local `settings.json` for VSCode (WIP). -->
 ## Usage
@@ -28,7 +30,7 @@ To minimise clutter in projects, the majority of configuration is done inside a 
 
 0. Have `direnv` installed and that it is hooked into your shell. Have flakes enabled via some mechanism with the flag `experimental-features = nix-command flakes` e.g. in `nix.conf`.
 1. Either click `Use this template` on GitHub and follow the instructions, or in a new repository, run `nix flake init -t github:chpxu/development-flake#default`.
-2. In `config.nix`, define your available programming contexts, e.g.
+2. In `config.nzix`, define your available programming contexts, e.g.
   ```nix
   # config.nix
   {pkgs, ...}: {

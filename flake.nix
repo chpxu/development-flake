@@ -184,7 +184,7 @@
         templates = {
           default = {
             description = ''
-              Opinionated flake
+              Opinionated flake for sane and configurable developer environments
             '';
             path = ./.;
             welcomeText = ''
