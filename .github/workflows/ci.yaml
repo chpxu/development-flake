@@ -1,0 +1,27 @@
+name: "Check devflake"
+
+on:
+  pull_request:
+  push:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests-flakes:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v6
+    - uses: cachix/install-nix-action@v31
+    - uses: cachix/cachix-action@v16
+      with:
+        name: pre-commit-hooks
+    - run: rm -rf /opt&
+
+    - name: Check flake
+      working-directory: ./
+      run: nix flake check -L --show-trace --no-write-lock-file
