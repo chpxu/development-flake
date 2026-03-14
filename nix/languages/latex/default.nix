@@ -44,13 +44,13 @@ in
         };
         env = lib.mkOption {
           type = t.listOf t.attrs;
-          default = [];
+          default = [ ];
           description = "Additional environment variables to add.";
         };
       };
       config = lib.mkIf cfg.enable {
         devshells.tex =
-          { extraModulesPath, ... }:
+          _:
           let
             texEnvironment = cfg.environment or pkgs.texliveMedium;
             ltexDefault = cfg.ltex.package or pkgs.ltex-ls-plus;
@@ -65,7 +65,6 @@ in
             ]
             ++ lib.optionals cfg.ltex.enable [ ltexDefault ];
             env = [
-              #{ name = "PATH"; value ="${pkgs.lib.makeBinPath packages}";} # set PATH to the environment tex instance
               {
                 name = "TEXMFHOME";
                 value = "$DEVSHELL_DIR/.cache";
@@ -79,7 +78,8 @@ in
                 value = "$DEVSHELL_DIR/.cache/texmf-cache";
               } # for Nix-built LaTeX projects, this is what is expected, see https://github.com/chpxu/reproducible-latex-template/blob/main/flake.nix
 
-            ] ++ cfg.env;
+            ]
+            ++ cfg.env;
           };
 
       };

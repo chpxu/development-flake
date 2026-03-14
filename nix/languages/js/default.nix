@@ -3,7 +3,6 @@
   ...
 }:
 let
-
   t = lib.types;
 in
 {
@@ -11,8 +10,6 @@ in
     { pkgs, config, ... }:
     let
       cfg = config.languages.js;
-      minNode = 20;
-      maxNode = 25;
     in
     {
       options.languages.js = {
@@ -55,7 +52,7 @@ in
                 description = "Node.js Corepack is consists of wrappers for npm, pnpm and Yarn.";
               };
               version = lib.mkOption {
-                type = cfg.nodeVersion.type; # Current available versions in NixOS 25.05 and later.
+                inherit (cfg.nodeVersion) type; # Current available versions in NixOS 25.05 and later.
                 default = cfg.nodeVersion;
               };
             };
@@ -67,7 +64,7 @@ in
         };
         env = lib.mkOption {
           type = t.listOf t.attrs;
-          default = [];
+          default = [ ];
           description = "Additional environment variables to add.";
         };
       };
@@ -78,11 +75,10 @@ in
             motd = "";
           };
           packages =
-            [ ]
             # If we have asdf and no corepack, we disallow installing  nodejs from nixpkgs and allow installing package manager
             # If we have no asdf and yes corepack, do allow installing node from nixpkgs but disallow installing package manager from nixpkgs
             # If we have (no asdf) and (no corepack), install both node and package manager
-            ++ lib.optionals (cfg.asdf && !cfg.corepack.enable) (
+            lib.optionals (cfg.asdf && !cfg.corepack.enable) (
               builtins.concatLists [
                 [
                   pkgs.asdf-vm
@@ -103,23 +99,25 @@ in
                 cfg.nodePackages
               ]
             );
-          env = lib.optionals cfg.asdf [
-            {
-              # https://asdf-vm.com/guide/getting-started.html
-              name = "ASDF_DATA_DIR";
-              value = "$PRJ_ROOT/.asdf"; # Normally set to "$HOME/.asdf", but to avoid conflicts it is probably safer to put it in project directory. NOT $DEVSHELL_DIR as that is read-only
-            }
-            {
-              name = "PATH";
-              value = "\${ASDF_DATA_DIR:-$PRJ_ROOT/.asdf}/shims:$PATH";
-            }
-          ]
-          ++ lib.optionals cfg.corepack.enable [
-            {
-              name = "COREPACK_HOME";
-              value = "$PRJ_ROOT/.cache/node/corepack";
-            }
-          ] ++ cfg.env;
+          env =
+            lib.optionals cfg.asdf [
+              {
+                # https://asdf-vm.com/guide/getting-started.html
+                name = "ASDF_DATA_DIR";
+                value = "$PRJ_ROOT/.asdf"; # Normally set to "$HOME/.asdf", but to avoid conflicts it is probably safer to put it in project directory. NOT $DEVSHELL_DIR as that is read-only
+              }
+              {
+                name = "PATH";
+                value = "\${ASDF_DATA_DIR:-$PRJ_ROOT/.asdf}/shims:$PATH";
+              }
+            ]
+            ++ lib.optionals cfg.corepack.enable [
+              {
+                name = "COREPACK_HOME";
+                value = "$PRJ_ROOT/.cache/node/corepack";
+              }
+            ]
+            ++ cfg.env;
         };
       };
     };

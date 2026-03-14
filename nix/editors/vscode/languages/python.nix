@@ -3,12 +3,14 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   cfg = config.languages.python;
   pythonEnv = pkgs."python${cfg.version}".withPackages (_: cfg.nixPackages);
-in {
+in
+{
   settings = {
-    "pylint.interpreter" = ["python3"];
+    "pylint.interpreter" = [ "python3" ];
     "pylint.enabled" = true;
     "python.analysis.autoImportCompletions" = true;
     "python.analysis.completeFunctionParens" = true;
@@ -28,9 +30,7 @@ in {
   };
   extensions = {
     recommendations =
-      [
-      ]
-      ++ (lib.optional cfg.tools.mypy ["ms-python.mypy-type-checker"])
-      ++ (lib.optional cfg.tools.pylance ["ms-python.vscode-pylance"]);
+      (lib.optional cfg.tools.mypy [ "ms-python.mypy-type-checker" ])
+      ++ (lib.optional cfg.tools.pylance [ "ms-python.vscode-pylance" ]);
   };
 }

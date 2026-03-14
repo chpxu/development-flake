@@ -1,6 +1,4 @@
-{config, ...}: let
-  cfg = config.languages.typst;
-in {
+_: {
   settings = {
     "tinymist.compileStatus" = "enable";
     "tinymist.completion.postfix" = true;

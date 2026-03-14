@@ -1,13 +1,11 @@
 {
   lib,
-  builtins,
   ...
 }:
 let
   t = lib.types;
 in
 {
-
   perSystem =
     {
       pkgs,
@@ -36,7 +34,7 @@ in
         enable = lib.mkEnableOption "Enable C/C++ configuration.";
         env = lib.mkOption {
           type = t.listOf t.attrs;
-          default = [];
+          default = [ ];
           description = "Additional environment variables to add.";
         };
         compiler = lib.mkOption {
@@ -75,7 +73,7 @@ in
             options = {
               enable = lib.mkOption {
                 type = t.bool;
-                default = !(cfg.gcc.enable);
+                default = !cfg.gcc.enable;
               };
               version = lib.mkOption {
                 # You may wish to use an older nixpkgs commit (e.g. 25.05) and change these so it works with your needs
@@ -160,7 +158,7 @@ in
       };
       config = lib.mkIf cfg.enable {
         devshells.cpp =
-          { extraModulesPath, ... }:
+          _:
           let
             selectGCC = helper.selectFromOlderPkgsInt {
               inherit lib pkgs pkgsOlder;
@@ -240,7 +238,8 @@ in
                 name = "PKG_CONFIG_PATH";
                 prefix = "$DEVSHELL_DIR/lib/pkgconfig";
               }
-            ]) ++ cfg.env;
+            ])
+            ++ cfg.env;
 
           };
       };

@@ -58,7 +58,6 @@ rec {
       pkgsOlder."${packageName}${versionConfig}";
   selectFromOlderPkgsInt =
     {
-      lib,
       pkgs,
       pkgsOlder,
       packageName,

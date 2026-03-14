@@ -1,63 +1,62 @@
 {
   lib,
-  config,
-  inputs,
   ...
-}: let
+}:
+let
   t = lib.types;
-in {
-  perSystem = {
-    pkgs,
-    config,
-    system,
-    ...
-  }: let
-    cfg = config.languages.typst;
-  in {
-    options.languages.typst = {
-      enable = lib.mkOption {
-        type = t.bool;
-        default = false;
-        description = "Enable Typst environment.";
-      };
-      env = lib.mkOption {
-        type = t.listOf t.attrs;
-        default = [];
-        description = "Additional environment variables to add.";
-      };
-      tinymist.enable = lib.mkOption {
-        type = t.bool;
-        default = true;
-        description = "Enable tinymist.";
-      };
-    };
-    config = lib.mkIf cfg.enable {
-      treefmt = {
-        programs = {
-          typstyle.enable = true;
+in
+{
+  perSystem =
+    {
+      pkgs,
+      config,
+      ...
+    }:
+    let
+      cfg = config.languages.typst;
+    in
+    {
+      options.languages.typst = {
+        enable = lib.mkOption {
+          type = t.bool;
+          default = false;
+          description = "Enable Typst environment.";
         };
-        settings.formatter = {
-          typstyle = {
-            priority = 1;
-            options = [
-              "--indent-width"
-              "2"
-              "--line-width"
-              "120"
-            ];
+        env = lib.mkOption {
+          type = t.listOf t.attrs;
+          default = [ ];
+          description = "Additional environment variables to add.";
+        };
+        tinymist.enable = lib.mkOption {
+          type = t.bool;
+          default = true;
+          description = "Enable tinymist.";
+        };
+      };
+      config = lib.mkIf cfg.enable {
+        treefmt = {
+          programs = {
+            typstyle.enable = true;
+          };
+          settings.formatter = {
+            typstyle = {
+              priority = 1;
+              options = [
+                "--indent-width"
+                "2"
+                "--line-width"
+                "120"
+              ];
+            };
           };
         };
-      };
-      devshells.typst = {extraModulesPath, ...}: let
-        typst-pkg = inputs.typst.packages.${system}.default;
-      in {
-        devshell = {
-          name = "typst";
-          motd = "LaTeX but faster?";
-        };
+        devshells.typst = _: {
+          devshell = {
+            name = "typst";
+            motd = "LaTeX but faster?";
+          };
 
-        commands =
-          [
+          commands = [
             {
               name = "tc";
               command = ''
@@ -79,13 +78,9 @@ in {
               command = ''tinymist compile --save-lock "$1".typ'';
             }
           ];
-        packages = [typst-pkg] ++ lib.optionals cfg.tinymist.enable [pkgs.tinymist];
-        env =
-          cfg.env
-          ++ [
-            # You should declare TYPST_FONT_PATHS if it is broken
-          ];
+          packages = [ pkgs.typst ] ++ lib.optionals cfg.tinymist.enable [ pkgs.tinymist ];
+          inherit (cfg) env;
+        };
       };
     };
-  };
 }

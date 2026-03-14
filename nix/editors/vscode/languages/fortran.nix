@@ -2,10 +2,12 @@
   config,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.languages.fortran;
   gfortran = pkgs."gfortran${toString cfg.gfortran.version}";
-in {
+in
+{
   settings = {
     "fortran.linter.includePaths" = [
       "\${workspaceFolder}/include/**"

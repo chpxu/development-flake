@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+_: {
   languages = {
     typst = {
       enable = true;
