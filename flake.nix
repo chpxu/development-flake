@@ -56,6 +56,13 @@
                 inherit system inputs';
               };
               helper = import ./nix/helpers;
+              pkgs = import inputs.nixpkgs {
+                inherit system;
+                overlays = [
+                  (import ./nix/overlays)
+                ];
+                config = { };
+              };
             };
             imports = [ userConfig ]; # settings from config.nix defined by user
             packages.upgrade = pkgs.writeShellScriptBin "upgrade.sh" ''
