@@ -6,22 +6,22 @@ Opinionated flake for development of various things I work on using multiple lan
 
 ## Workflow
 
-This flake is intended to fit with my workflow, which is with [Visual Studio Code](https://code.visualstudio.com), NixOS and direnv. This project is not intended to be a replacement or alternative to excellent projects such as direnv, devenv, devshell, lorri etc. The flake setups up a reproducible development environment for different programming contexts, and aims to be as declarative as possible whilst allowing some flexibility. 
+This flake is intended to fit with my workflow, which is with [Visual Studio Code](https://code.visualstudio.com), NixOS and direnv. This project is not intended to be a replacement or alternative to excellent projects such as direnv, devenv, devshell, lorri etc. The flake creates reproducible development environments for various programming contexts, and aims to balance configurability and opinion. 
 
 
 ## Features
 
 - Based off `direnv`, nix flakes and `devshell` for portable, easy, reproducible development environments.
-- Editor integration, with first-class support for Visual Studio Code/VSCodium (extensions permitting).
+- Direct editor integration, with first-class support for Visual Studio Code/VSCodium (extensions permitting).
 - Formatting support either with `treefmt-nix` or standard config files 
 - Configurable and extensible language support via the module system:
   - Languages which allow any number of includes/extra packages are (semi)-automatically added with the creation of a file!
-  - `C/C++` GCC or Clang/LLVM C/C++ development environment with options for build systems, libraries and includes.
-  - `Python` with the option to use [uv](https://docs.astral.sh/uv/).
-  - `Node/JS/TS` with options for [corepack](https://github.com/nodejs/corepack), [asdf](https://asdf-vm.com/) and package manager configuration for [pnpm](https://pnpm.io/) and [yarn](https://yarnpkg.com).
-  - `Fortran` support with `gfortran`, enabling debugger and the `fortls` language server with [Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran).
-  - Reproducible LaTeX environment with support for [LTeX+](https://ltex-plus.github.io/ltex-plus/index.html).
-  - `Typst` with [tinymist](https://myriad-dreamin.github.io/tinymist/introduction.html)
+  - `C/C++` GCC or Clang/LLVM C/C++ development environment with options for build systems, libraries and includes
+  - `Python` with the option to use [uv](https://docs.astral.sh/uv/)
+  - `Node/JS/TS` with options for [corepack](https://github.com/nodejs/corepack), [asdf](https://asdf-vm.com/) and package manager configuration for [pnpm](https://pnpm.io/) and [yarn](https://yarnpkg.com)
+  - `Fortran` support with `gfortran`, enabling debugger and the `fortls` language server with [Modern Fortran](https://marketplace.visualstudio.com/items?itemName=fortran-lang.linter-gfortran)
+  -  $\LaTeX$ environment with support for [LTeX+](https://ltex-plus.github.io/ltex-plus/index.html)
+  - `Typst` with [tinymist](https://myriad-dreamin.github.io/tinymist/introduction.html) and `typstyle`
 
 <!-- - Setting up local `settings.json` for VSCode (WIP). -->
 ## Usage
@@ -30,10 +30,10 @@ To minimise clutter in projects, the majority of configuration is done inside a 
 
 0. Have `direnv` installed and that it is hooked into your shell. Have flakes enabled via some mechanism with the flag `experimental-features = nix-command flakes` e.g. in `nix.conf`.
 1. Either click `Use this template` on GitHub and follow the instructions, or in a new repository, run `nix flake init -t github:chpxu/development-flake#default`.
-2. In `config.nzix`, define your available programming contexts, e.g.
+2. In `config.nix`, define your available programming contexts, e.g.
   ```nix
   # config.nix
-  {pkgs, ...}: {
+  _: {
     languages = { 
       # For each language inside nix/languages, a corresponding language.enable will exist!
       python = {
@@ -79,7 +79,7 @@ The following commands are now available!
 
 ## Extending devflake
 
-Currently, devflake supports C, C++, Fortran, JS/TS, LaTeX, Python and Nix. You may use other languages than these, use packages that aren't available in nixpkgs or otherwise. This flake imports `nixos-unstable` and `nixpkgs-25.05` (mainly for some older LLVM/GCC packages). Extension can be done via traditional overlays or adding files into `/nix`. 
+Currently, devflake supports C, C++, Fortran, JS/TS, LaTeX, Python, Typst and Nix. You may use other languages than these and/or use packages that aren't available in nixpkgs or otherwise. This flake imports `nixos-unstable` and `nixpkgs-25.05` (mainly for some older LLVM/GCC packages). Extension can be done via traditional overlays or configuring files in `/nix`. 
 
 ### Overlays
 Overlays are applied on top of the **unstable** nixpkgs input only. This can be done by editing the file `overlays/default.nix`, for example to modify `ripgrep`, the file could look like this:
@@ -92,7 +92,7 @@ final: prev: {
     # Your other overlays ...
 }
 ```
-Note that overlays will most certainly trigger a package rebuild. If you attempting to modify a really big package, consider whether you really need to.
+Note that overlays will most certainly trigger a package rebuild. If you attempting to modify a really big package, consider whether you really need to. [`flake-parts` does not recommend overlays](https://flake.parts/options/flake-parts-easyoverlay) but I have provided the basic support for those who need it.
 
 ### Including other languages
 
@@ -167,36 +167,6 @@ This is to stop the flake from breaking (it automatically assumes these files ex
 ### Non nixpkgs software
 
 You should follow the instructions to construct a package for your software, e.g. use `pkgs.python3.pkgs.buildPythonPackage`, or `stdenv.mkDerivation`. You should then add your package into the respective language's `packages` attribute (or inside the `python3.withPackages` call for Python).
-<!-- The `nix` folder structure looks something like this:
-```
-.
-└── nix/
-    ├── default.nix
-    ├── languages/
-    │   ├── c/
-    │   │   ├── c.nix
-    │   │   └── # other c/c++ configuration files
-    │   ├── python/
-    │   │   ├── python.nix
-    │   │   └── # other python configuration files
-    │   ├── js/
-    │   │   ├── js.nix
-    │   │   └── # other js configuration files
-    │   └── #  other languages
-    ├── overlays/
-    │   └── default.nix
-    └── misc/
-        ├── write_vscode_settings.nix
-        ├── helper.nix
-        └── # other files
-```
-
-- `default.nix` is the file which imports and includes everything from all the other files and sets up package configuration, shellHook, vscode configuration etc. This file is then included inside `flake.nix` to be consumed by `devShells`.
-- `packages/<language>` folders contain nix files that detail the relevant packages to be installed.
-- `overlays` folder contains, well, any overlays you might want to use. 
-  - For example, configuring python311 to `enableOptimisations` and disable `reproducibleBuild` for potential speedups
-- `misc` folder contains any general functions written to be used across the project (`helper.nix`), and any configuration that does not directly impact the shell itself (e.g. editor settings). -->
-
 ## Editor/IDE Integration
 
 Currently this is WIP, and my main goal is making sure this flake works well with VSCode.
@@ -231,15 +201,11 @@ STATUS: parity with stable.
 
 Launching emacs from the directory of the project, after direnv has loaded, should hopefully make it pick up the right environment variables.
 
-
-STATUS: parity with stable.
-
 ## Contributing
 
 Thanks for viewing this repo!
 
 I don't really use anything other than NixOS and VSCode. I do not develop on Windows or Mac (even though I've enabled support for `x86_64-darwin`, this is because I expect it to function pretty much the same). Extending the flake to cope with some other editors or platforms would be greatly appreciated and would help a bunch of others if they ever happen to come across this flake and find it useful :pray:.
-
 
 To contribute, please look at [extending-devflake](#extending-devflake).
 
