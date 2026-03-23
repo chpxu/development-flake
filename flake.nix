@@ -140,6 +140,7 @@
               nixfmt.enable = true;
               flake-checker = {
                 enable = true;
+                after = [ "treefmt-nix" ];
               };
               treefmt = {
                 enable = true;
