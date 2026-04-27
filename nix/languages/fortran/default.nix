@@ -28,7 +28,7 @@ in
                 # NixOS 25.05 is the last version to support GCC 9 - 12. This is included in this flake for backwards compat.
                 type = t.ints.between minGCC maxGCC;
                 default = maxGCC;
-                description = "The gfortran version to use. Defaults to GCC ${builtins.toString maxGCC}. NixOS 25.05 is the last version to support gfortran 9 through to 12.";
+                description = "The gfortran version to use. Defaults to GCC ${toString maxGCC}. NixOS 25.05 is the last version to support gfortran 9 through to 12.";
               };
             };
           };

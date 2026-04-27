@@ -60,7 +60,7 @@ in
                 # NixOS 25.05 is the last version to support GCC 9 - 12. This is included in this flake for backwards compat.
                 type = t.ints.between minGCC maxGCC;
                 default = maxGCC;
-                description = "The GCC version to use. Defaults to GCC ${builtins.toString maxGCC}. NixOS 25.05 is the last version to support GCC 9 through to 12.";
+                description = "The GCC version to use. Defaults to GCC ${toString maxGCC}. NixOS 25.05 is the last version to support GCC 9 through to 12.";
               };
             };
 
@@ -80,7 +80,7 @@ in
                 # NixOS 25.05 is the last version to support LLVM 12 - 17. This is included in this flake for backwards compat.
                 type = t.ints.between minLLVM maxLLVM;
                 default = maxLLVM;
-                description = "The LLVM version to use. Defaults to LLVM ${builtins.toString maxLLVM}. NixOS 25.05 is the last version to support LLVM 12 through to 17.";
+                description = "The LLVM version to use. Defaults to LLVM ${toString maxLLVM}. NixOS 25.05 is the last version to support LLVM 12 through to 17.";
               };
               packages = lib.mkOption {
                 type = t.listOf t.packages;

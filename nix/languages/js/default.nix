@@ -88,12 +88,12 @@ in
               ]
             )
             ++ lib.optionals (!cfg.asdf && cfg.corepack.enable) [
-              pkgs."corepack_${builtins.toString cfg.corepack.version}"
+              pkgs."corepack_${toString cfg.corepack.version}"
             ]
             ++ lib.optionals (!cfg.asdf && !cfg.corepack.enable) (
               builtins.concatLists [
                 [
-                  pkgs."nodejs_${builtins.toString cfg.nodeVersion}"
+                  pkgs."nodejs_${toString cfg.nodeVersion}"
                   cfg.packageManager
                 ]
                 cfg.nodePackages

@@ -26,18 +26,13 @@ in
         fi
 
         cat << EOF > .vscode/settings.json
-        ${if cfgcode.enableSettings then (builtins.toString settingsToJSON) else "{}"}
+        ${if cfgcode.enableSettings then (toString settingsToJSON) else "{}"}
         EOF
 
         echo "VSCode settings have been successfully written"
 
         cat << EOF > .vscode/extensions.json
-        ${
-          if cfgcode.enableExtensions then
-            (builtins.toString extensionsToJSON)
-          else
-            "{ \"recommendations\" = []}"
-        }
+        ${if cfgcode.enableExtensions then (toString extensionsToJSON) else "{ \"recommendations\" = []}"}
         EOF
         echo "VSCode extensions.json have been successfully written"
       '';

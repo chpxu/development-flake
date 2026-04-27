@@ -4,8 +4,8 @@ rec {
       list,
       attrs,
       targetAttr,
-    }@args:
-    map (path: (import path { inherit (args) attrs; }).${targetAttr}) list;
+    }:
+    map (path: (import path { inherit attrs; }).${targetAttr}) list;
   # bulkImportFromFileDirectory :: (path: String, attrs: AttrSet) -> [Path] -> [[Package]] -> [Package]
   bulkImportFromFileDirectory =
     {
@@ -53,7 +53,7 @@ rec {
       versionConfig,
     }:
     if lib.versionAtLeast versionConfig versionCriterion then
-      pkgs."${packageName}${builtins.toString versionConfig}"
+      pkgs."${packageName}${toString versionConfig}"
     else
       pkgsOlder."${packageName}${versionConfig}";
   selectFromOlderPkgsInt =
@@ -65,7 +65,7 @@ rec {
       versionConfig,
     }:
     if versionConfig < versionCriterion then
-      pkgsOlder."${packageName}${builtins.toString versionConfig}"
+      pkgsOlder."${packageName}${toString versionConfig}"
     else
-      pkgs."${packageName}${builtins.toString versionConfig}";
+      pkgs."${packageName}${toString versionConfig}";
 }
