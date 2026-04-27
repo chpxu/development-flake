@@ -67,7 +67,7 @@ in
           _:
           let
             selectGCC = helper.selectFromOlderPkgsInt {
-              inherit lib pkgs pkgsOlder;
+              inherit pkgs pkgsOlder;
               packageName = "gfortran";
               versionCriterion = 13;
               versionConfig = cfg.gfortran.version;
@@ -90,6 +90,7 @@ in
               # We add a python environment
               ++ lib.optionals cfg.fprettify.enable [
                 cfg.fprettify.package
+                # (pkgs."python${config.languages.python.version}".withPackages (_: finalPythonPackages))
               ];
           };
       };
