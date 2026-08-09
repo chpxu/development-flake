@@ -21,7 +21,9 @@ jobs:
       with:
         name: pre-commit-hooks
     - run: rm -rf /opt&
-
+    - name: Format flake
+      working-directory: ./
+      run: nix fmt
     - name: Check flake
       working-directory: ./
       run: nix flake check -L --show-trace --no-write-lock-file

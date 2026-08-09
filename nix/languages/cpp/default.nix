@@ -161,19 +161,19 @@ in
           _:
           let
             selectGCC = helper.selectFromOlderPkgsInt {
-              inherit lib pkgs pkgsOlder;
+              inherit pkgs pkgsOlder;
               packageName = "gcc";
               versionCriterion = minUnstableGCC;
               versionConfig = cfg.gcc.version;
             };
             llvmPackages = helper.selectFromOlderPkgsInt {
-              inherit lib pkgs pkgsOlder;
+              inherit pkgs pkgsOlder;
               packageName = "llvmPackages_";
               versionCriterion = minUnstableLLVM;
               versionConfig = cfg.llvm.version;
             };
             selectClang = helper.selectFromOlderPkgsInt {
-              inherit lib pkgs pkgsOlder;
+              inherit pkgs pkgsOlder;
               packageName = "clang_";
               versionCriterion = minUnstableLLVM;
               versionConfig = cfg.llvm.version;
@@ -184,9 +184,14 @@ in
             name = "C_C++_" + cfg.compiler;
             packages = [
               compiler
+              pkgs.pkg-config
             ]
             ++ (lib.optionals addLibraries (map lib.getLib cfg.libraries))
-            ++ (lib.optionals addIncludes ([ pkgs.pkg-config ] ++ (map lib.getDev cfg.libraries)))
+            ++ (lib.optionals addIncludes (map lib.getDev cfg.libraries))
+            ++ lib.optionals cfg.ninja.enable [ pkgs.ninja ]
+            ++ lib.optionals cfg.meson.enable [ pkgs.meson ]
+            ++ lib.optionals cfg.gnumake.enable [ pkgs.gnumake ]
+            ++ lib.optionals cfg.cmake.enable [ pkgs.cmake ]
             ++ lib.optionals (cfg.compiler == "clang") (
               with llvmPackages;
               [
@@ -202,9 +207,7 @@ in
                 gdb
                 bintools
               ]
-            )
-            ++ lib.optional cfg.ninja.enable [ pkgs.ninja ]
-            ++ lib.optional cfg.meson.enable [ pkgs.meson ];
+            );
             env = [
               {
                 name = "CC";
@@ -236,7 +239,7 @@ in
               }
               {
                 name = "PKG_CONFIG_PATH";
-                prefix = "$DEVSHELL_DIR/lib/pkgconfig";
+                prefix = "${pkgs.zlib.dev}/share/pkgconfig:$DEVSHELL_DIR/lib/pkgconfig";
               }
             ])
             ++ cfg.env;
