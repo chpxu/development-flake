@@ -135,11 +135,19 @@
               echo "PLEASE CHECK EVERYTHING HAS WORKED"
               exit 0
             '';
+            devshells.default = {
+              devshell.startup.git-hooks.text = config.pre-commit.installationScript;
+              packages = [
+                config.treefmt.build.wrapper
+                config.pre-commit.settings.package # gives you the `pre-commit` command
+              ]
+              ++ config.pre-commit.settings.enabledPackages;
+            };
             pre-commit.settings.hooks = {
               nixfmt.enable = true;
               flake-checker = {
                 enable = true;
-                after = [ "treefmt-nix" ];
+                before = [ "treefmt" ];
               };
               treefmt = {
                 enable = true;
