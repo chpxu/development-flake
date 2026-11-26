@@ -1,12 +1,10 @@
 # :snowflake: devflake :snowflake:
 
-## **STATUS: UNSTABLE**
-
-Opinionated flake for development of various things I work on using multiple languages/frameworks/tools. Uses `flake-parts`, `numtide/devshell`, `direnv` and `nix-direnv`. The motivation for this is to create an environment which is easy to use, hooks well with editors (particularly VSCode) and is completely self-documented (using Nix).
+Opinionated flake for development of various things I work on using multiple languages/frameworks/tools. Uses `flake-parts`, `numtide/devshell`, `direnv` and `nix-direnv`. The motivation for this is to create an environment which is easy to use, hooks well with editors (particularly Neovim and VSCode) and is completely self-documented (using Nix).
 
 ## Workflow
 
-This flake is intended to fit with my workflow, which is with [Visual Studio Code](https://code.visualstudio.com), NixOS and direnv. This project is not intended to be a replacement or alternative to excellent projects such as direnv, devenv, devshell, lorri etc. The flake creates reproducible development environments for various programming contexts, and aims to balance configurability and opinion. 
+This flake is intended to fit with my workflow, which is currently a mix between [Neovim](https://neovim.io) and [Visual Studio Code](https://code.visualstudio.com) with NixOS and direnv. This project is not intended to be a replacement or alternative to excellent projects such as direnv, devenv, devshell, lorri etc. The flake creates reproducible development environments for various programming contexts, and aims to balance configurability and opinion. 
 
 
 ## Features
@@ -188,13 +186,13 @@ The relevant files to edit are contained in `nix/editors/vscode`.
 
 STATUS: This feature is now parity with the old code and is stable.
 
-### (Neo)Vim (untested)
+### (Neo)Vim
 
-1. Install [vim-direnv](https://github.com/direnv/direnv.vim) with your plugin manager.
+1. Install [vim-direnv](https://github.com/direnv/direnv.vim) or [NotAShelf/direnv.nvim](https://github.com/NotAShelf/direnv.nvim) with your plugin manager.
+2. Enter your project directory, ensuring direnv has activated
+3. Enter you development environment `nix develop ...` or nix shell.
+4. Run (neo)vim in this environment - it should pick up all variables.
 
-Launching vim from the directory of the project, after direnv has loaded, should hopefully make it pick up the right environment variables. Open an issue if it doesn't work.
-
-STATUS: parity with stable.
 ### Emacs (untested)
 
 1. Install [emacs-direnv](https://github.com/wbolster/emacs-direnv).

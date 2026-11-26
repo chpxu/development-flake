@@ -5,7 +5,7 @@
     nixpkgs2505.url = "github:NixOS/nixpkgs/2b0d2b456e4e8452cf1c16d00118d145f31160f9"; # to use for older packages
     flake-parts.url = "github:hercules-ci/flake-parts/";
     devshell.url = "github:numtide/devshell/";
-    import-tree.url = "github:vic/import-tree/";
+    import-tree.url = "github:denful/import-tree/";
     git-hooks-nix.url = "github:cachix/git-hooks.nix/";
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
@@ -13,21 +13,20 @@
     {
       nixpkgs2505,
       flake-parts,
+      import-tree,
       ...
     }@inputs:
     let
-      inherit (inputs) import-tree;
-      getLanguageDefaultNix = (import-tree.match ".*/default\\.nix") ./nix/languages;
-      getEditorDefaultNix = (import-tree.match ".*/default\\.nix") ./nix/editors;
-      imports = builtins.concatLists [
-        [
-          inputs.flake-parts.flakeModules.easyOverlay
-          inputs.devshell.flakeModule
-          inputs.treefmt-nix.flakeModule
-          inputs.git-hooks-nix.flakeModule
-        ]
-        getLanguageDefaultNix.imports
-        getEditorDefaultNix.imports
+      imports = [
+        (import-tree.match ".*/default\\.nix" [
+          ./nix/languages
+          ./nix/editors
+        ])
+
+        inputs.flake-parts.flakeModules.easyOverlay
+        inputs.devshell.flakeModule
+        inputs.treefmt-nix.flakeModule
+        inputs.git-hooks-nix.flakeModule
       ];
     in
     flake-parts.lib.mkFlake
@@ -42,7 +41,6 @@
         perSystem =
           {
             config,
-            inputs',
             pkgs,
             system,
             ...
@@ -53,7 +51,8 @@
           {
             _module.args = {
               pkgsOlder = import nixpkgs2505 {
-                inherit system inputs';
+                inherit system;
+                config = { };
               };
               helper = import ./nix/helpers;
               pkgs = import inputs.nixpkgs {
@@ -87,7 +86,7 @@
                     git ls-files --others --error-unmatch . >/dev/null 2>&1; ec=$?
                   if test "$ec" = 0; then
                       echo "Untracked files exist in this project. Will not risk updating template. Exiting..."
-                      exit(1)
+                      exit 1
                   elif test "$ec" = 1; then
                       echo "No untracked files"
                   else
